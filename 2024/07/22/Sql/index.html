@@ -151,7 +151,7 @@ var _hmt = _hmt || [];
   <div class="article-content">
     <div class="entry">
       
-          <h2 id="Sql注入基本步骤"><a href="#Sql注入基本步骤" class="headerlink" title="Sql注入基本步骤"></a>Sql注入基本步骤</h2><ol>
+          <h2 id="Sql注入基本步骤"><a href="#Sql注入基本步骤" class="headerlink" title="Sql注入基本步骤"></a><font color = '008000'>Sql注入基本步骤</font></h2><ol>
 <li>查找注入点</li>
 <li>判断是字符型还是数字型注入 and 1&#x3D;1 and 1&#x3D;2 &#x2F; 3-1</li>
 <li>如果是字符型判断他的闭合方式, ‘ “ ‘) “)</li>
@@ -159,18 +159,14 @@ var _hmt = _hmt || [];
 <li>寻找回显位置</li>
 </ol>
 <hr>
-<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h2><ol>
-<li>database()</li>
-<li>group_concat()</li>
-<li>concat()</li>
-<li>substring(),00,30</li>
+<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a><font color = '008000'>相关命令</font></h2><ol>
+<li><code>database()</code></li>
+<li><code>group_concat()</code></li>
+<li><code>concat()</code></li>
+<li><code>substring(),00,30</code></li>
 </ol>
 <hr>
-<h2 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a><font color = '008000'>报错注入</font></h2><ol>
-<li>extractvalue(XML_document,XPath_string)</li>
-<li>updatexml(XML_document,XPath_string,new_value)</li>
-</ol>
-
+<h2 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a><font color = '008000'>报错注入</font></h2>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">extractvalue(XML_document,XPath_string)</span><br><span class="line"></span><br><span class="line">updatexml(XML_document,XPath_string,new_value)</span><br></pre></td></tr></table></figure>
       
     </div>
     
