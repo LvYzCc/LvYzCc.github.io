@@ -144,12 +144,12 @@ var _hmt = _hmt || [];
 <hr>
 <ol>
 <li><p>首先寻找终点</p>
-<p>我们在<strong>Try_Work_Hard</strong>类终发现了<strong>include</strong>函数判断出这里可以使用php伪协议来读取最后的$flag$文件,接下来判断如触发这个<strong>append</strong>函数，我们发现**__invoke<strong>魔术方法中存在append函数得知需要发动</strong>__invoke<strong>魔术方法来达到终点，</strong>__invoke**魔术方法是当一个类被当做函数运行的时候发动</p>
+<p>我们在<strong>Try_Work_Hard</strong>类终发现了<strong>include</strong>函数判断出这里可以使用php伪协议来读取最后的$flag$文件,接下来判断如触发这个<strong>append</strong>函数，我们发现  <strong>__invoke</strong> 魔术方法中存在append函数得知需要发动 <strong>__invoke</strong> 魔术方法来达到终点， <strong>__invoke</strong> 魔术方法是当一个类被当做函数运行的时候发动</p>
 <p style="font-size:12px">这里我们可以先对var这个append执行的值进行payload构建,<strong>$var=php://filter/convert.base64-encode/resource=/flag</strong></p></li>
 <li><p>接下来找到如何让__invoke魔术方法发挥作用的地方</p>
-<p>我们发现在<strong>Make_a_Change</strong>类中**__get<strong>魔术方法中有<code>return $function();</code><br>$function$的值可控，我们可以让$function$的值等于一个</strong>Try_Work_Hard**类</p>
+<p>我们发现在<strong>Make_a_Change</strong>类中 <strong>__get</strong>魔术方法中有<code>return $function();</code><br>$function$的值可控，我们可以让$function$的值等于一个<strong>Try_Work_Hard</strong>类</p>
 </li>
-<li><p>接着寻找让__get魔术方法启动的地方，我们知道__get魔术方式是当我们访问一个类中私有或不存在的成员属性的时候自动触发，因此我们来到<strong>Road_is_Long</strong>，发现当中的__toString魔术方法访问了一个page变量，那我们可以让$this-&gt;string$等于<strong>Make_a_Change</strong>类，这样就能出发**__get<strong>魔术方法，</strong>__toSting<strong>魔术方法是当一个类被当做字符串使用时自动触发，我们就发现</strong>__wakeup<strong>魔术方法中就有将字符串赋值给一个变量$page$而且$page$的值可控，那我们就让$page$等于一个</strong>Road_is_Long<strong>类，我们暂且称第一个</strong>Road_is_Long**类为$a$，第二个为$b$</p>
+<li><p>接着寻找让__get魔术方法启动的地方，我们知道__get魔术方式是当我们访问一个类中私有或不存在的成员属性的时候自动触发，因此我们来到<strong>Road_is_Long</strong>，发现当中的__toString魔术方法访问了一个page变量，那我们可以让$this-&gt;string$等于<strong>Make_a_Change</strong>类，这样就能出发 <strong>__get</strong> 魔术方法，**__toSting<strong>魔术方法是当一个类被当做字符串使用时自动触发，我们就发现 <strong>__wakeup</strong>魔术方法中就有将字符串赋值给一个变量$page$而且$page$的值可控，那我们就让$page$等于一个</strong>Road_is_Long**类，我们暂且称第一个 <strong>Road_is_Long</strong> 类为$a$，第二个为$b$</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = new Make_a_Change();</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>a也就是我们要传入的wish，当a反序列化前会执行__wakeup魔术方法，这是会触发b的__toString在这时触发*<strong>Make_a_Change</strong>的__get魔术方法再到 <strong>Try_Work_Hard</strong>的__invoke魔术方法最后执行append提取到flag</p>
 </li>
