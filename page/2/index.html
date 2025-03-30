@@ -1,716 +1,208 @@
-<!DOCTYPE HTML>
-<html>
-<head >
-  <meta charset="utf-8">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>LvYz的小窝</title><meta name="author" content="LvYz"><meta name="copyright" content="LvYz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="WebDog你知道的啊">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LvYz的小窝">
+<meta property="og:url" content="http://example.com/page/2/index.html">
+<meta property="og:site_name" content="LvYz的小窝">
+<meta property="og:description" content="WebDog你知道的啊">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:author" content="LvYz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/page/2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-  <title>Page 2 | Hexo</title>
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
 
-  
-  <meta name="author" content="John Doe">
-  
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
 
-  
-
-  
-
-  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-  
-
-  <meta property="og:site_name" content="Hexo"/>
-
-  
-  <meta property="og:image" content="/favicon.ico"/>
-  
-  
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-5005349780815724",
-    enable_page_level_ads: true
-  });
-</script>
-
-  
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?223eea22355699157e147870eb124b24";
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-
-
-  <link rel="manifest" href="/manifest.json">
-  <link href="/favicon.ico" rel="icon">
-
-  <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base/bootstrap.min.css" media="screen" type="text/css">
-  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
-
-
-<meta name="generator" content="Hexo 7.2.0"></head>
-
-
-<body>
-<div class="blog">
-  <div class="content">
-
+      const theme = saveToLocal.get('theme')
     
-
-    <header class="header-container" style="background-image: url('/images/blog-bg.jpg');">
-
-
-<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header page-scroll">
-          <button type="button" id="tglBtn" class="navbar-toggle">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">John Doe</a>
-        </div>
-        <div id="bosenyblog-navbar">
-          <div class="navbar-collapse" id="bs-example-navbar-collapse-6">
-            <ul class="nav navbar-nav navbar-right">
-            
-              <li><a href="/">Home</a></li>
-            
-              <li><a href="/archives">Archives</a></li>
-            
-              <li><a href="/about">About</a></li>
-            
-              <li><a href="/tags">Tags</a></li>
-            
-            </ul>
-          </div>
-        </div>
-
-    </div>
- </nav>
- <div class="gotop-btn">
-
- </div>
-</header>
-
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
         
-        <div class="container ">
-          <div class="row">
-            <main class="site-main posts-loop    col-lg-8 col-lg-offset-1
-                    col-md-8 col-md-offset-1
-                    col-sm-12
-                    col-xs-12">
-            
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/07/28/[BJDCTF 2020]easy_md5/"><span>BJDCTF 2020_easy_md5题解</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/07/28/[BJDCTF 2020]easy_md5/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-07-28T08:47:23.000Z">
-          2024-07-28
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
       
-          <h1 id="BJDCTF-2020-easy-md5题解"><a href="#BJDCTF-2020-easy-md5题解" class="headerlink" title="[BJDCTF 2020]easy_md5题解"></a><center>[BJDCTF 2020]easy_md5题解</h1><p><img src="/../img/md5/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-07-28%20170034.png"></p>
-<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点:"></a>知识点:</h2><ol>
-<li><em><strong>md5(password,true)</strong></em><br><img src="/../img/md5/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-07-28%20165040.png" alt="图片alt" title="md5用法"></li>
-<li><em><strong>php弱类型匹配或数组绕过</strong></em><br><img src="/../img/md5/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-07-28%20165405.png"></li>
-</ol>
-<p>在响应头得到提示属于SQL注入与md5结合的题目</p>
-<p><code>select * from &#39;admin&#39; where password=md5($pass,true)</code><br>$pass$就是我们上传的$password$，当<code>password=md5($pass,true)</code><br>为真时，前面的<code>select * from &#39;admin&#39;</code>才会进行查询,这里需要用将<code>md5($pass,true)</code>将它转化为<code>&#39;or 1</code></p>
-<p>这里用到一个特殊的字符串$ffifdyop$,</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hex: 276f722736c95d99e921722cf9ed621c</span><br><span class="line"></span><br><span class="line">raw: &#x27;or&#x27;6\xc9]\x99\xe9!r,\xf9\xedb\x1c</span><br><span class="line"></span><br><span class="line">string: &#x27;or&#x27;6]!r,b</span><br></pre></td></tr></table></figure>
-<p>$ffifdyop$ 这个字符串被 $md5$ 哈希了之后会变成 $276f722736c95d99e921722cf9ed621c，这个字符串前几位刚好是 $’ or ‘6$而 Mysql 刚好又会把 hex 转成 ascii 解释，因此拼接之后的形式是 <code>select * from &#39;admin&#39; where password=&#39;&#39; or &#39;6xxxxx&#39;</code>，等价于 or 一个永真式，因此相当于万能密码，可以绕过md5()函数。</p>
-<p>$’6xxxx’$在布尔比较中当成真<br>在框中输入$ffifdyop$后跳转到下一个页面<br><img src="/../img/md5/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-07-28%20171038.png"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--</span><br><span class="line">$a = $_GET[&#x27;a&#x27;];</span><br><span class="line">$b = $_GET[&#x27;b&#x27;];</span><br><span class="line"></span><br><span class="line">if($a != $b &amp;&amp; md5($a) == md5($b))&#123;</span><br><span class="line">    header(&#x27;Location: levell14.php&#x27;);</span><br><span class="line">&#125;</span><br><span class="line">--&gt;</span><br></pre></td></tr></table></figure>
-<p>从源代码的注释中可以得知这是一个弱类型比较可以使用数组绕过</p>
-<p>下一组也是使用数组绕过</p>
-<ol>
-<li><p>常规的0e绕过</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">QNKCDZO</span><br><span class="line"></span><br><span class="line">240610708</span><br><span class="line"></span><br><span class="line">s878926199a</span><br><span class="line"></span><br><span class="line">s155964671a</span><br><span class="line"></span><br><span class="line">s214587387a</span><br><span class="line"></span><br><span class="line">s214587387a</span><br></pre></td></tr></table></figure>
-<p>这些字符串的 md5 值都是 0e 开头，在 php 弱类型比较中判断为相等</p>
-</li>
-<li><p>数组绕过</p>
-</li>
-</ol>
-<p>如下代码<br><code>var_dump(md5($_GET[&#39;a&#39;]) == md5($_GET[&#39;b&#39;]))</code></p>
-<p>传入</p>
-<p><code>a[]=a&amp;b[]=b </code></p>
-<p>可以看到，MD5一个数组返回了null，null&#x3D;&#x3D;null，成功绕过</p>
-<ol start="3">
-<li><p>强类型绕过</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if((string)$_POST[&#x27;a&#x27;] !== (string)$_POST[&#x27;b&#x27;] &amp;&amp; md5($_POST[&#x27;a&#x27;]) === md5($_POST[&#x27;b&#x27;]))</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">a=%4d%c9%68%ff%0e%e3%5c%20%95%72%d4%77%7b%72%15%87%d3%6f%a7%b2%1b%dc%56%b7%4a%3d%c0%78%3e%7b%95%18%af%bf%a2%00%a8%28%4b%f3%6e%8e%4b%55%b3%5f%42%75%93%d8%49%67%6d%a0%d1%55%5d%83%60%fb%5f%07%fe%a2</span><br><span class="line">&amp;b=%4d%c9%68%ff%0e%e3%5c%20%95%72%d4%77%7b%72%15%87%d3%6f%a7%b2%1b%dc%56%b7%4a%3d%c0%78%3e%7b%95%18%af%bf%a2%02%a8%28%4b%f3%6e%8e%4b%55%b3%5f%42%75%93%d8%49%67%6d%a0%d1%d5%5d%83%60%fb%5f%07%fe%a2</span><br><span class="line"></span><br><span class="line">$Param1=&quot;\x4d\xc9\x68\xff\x0e\xe3\x5c\x20\x95\x72\xd4\x77\x7b\x72\x15\x87\xd3\x6f\xa7\xb2\x1b\xdc\x56\xb7\x4a\x3d\xc0\x78\x3e\x7b\x95\x18\xaf\xbf\xa2\x00\xa8\x28\x4b\xf3\x6e\x8e\x4b\x55\xb3\x5f\x42\x75\x93\xd8\x49\x67\x6d\xa0\xd1\x55\x5d\x83\x60\xfb\x5f\x07\xfe\xa2&quot;;</span><br><span class="line">$Param2=&quot;\x4d\xc9\x68\xff\x0e\xe3\x5c\x20\x95\x72\xd4\x77\x7b\x72\x15\x87\xd3\x6f\xa7\xb2\x1b\xdc\x56\xb7\x4a\x3d\xc0\x78\x3e\x7b\x95\x18\xaf\xbf\xa2\x02\xa8\x28\x4b\xf3\x6e\x8e\x4b\x55\xb3\x5f\x42\x75\x93\xd8\x49\x67\x6d\xa0\xd1\xd5\x5d\x83\x60\xfb\x5f\x07\xfe\xa2&quot;;</span><br><span class="line"></span><br><span class="line">$data1=&quot;\xd1\x31\xdd\x02\xc5\xe6\xee\xc4\x69\x3d\x9a\x06\x98\xaf\xf9\x5c\x2f\xca\xb5\x07\x12\x46\x7e\xab\x40\x04\x58\x3e\xb8\xfb\x7f\x89\x55\xad\x34\x06\x09\xf4\xb3\x02\x83\xe4\x88\x83\x25\xf1\x41\x5a\x08\x51\x25\xe8\xf7\xcd\xc9\x9f\xd9\x1d\xbd\x72\x80\x37\x3c\x5b\xd8\x82\x3e\x31\x56\x34\x8f\x5b\xae\x6d\xac\xd4\x36\xc9\x19\xc6\xdd\x53\xe2\x34\x87\xda\x03\xfd\x02\x39\x63\x06\xd2\x48\xcd\xa0\xe9\x9f\x33\x42\x0f\x57\x7e\xe8\xce\x54\xb6\x70\x80\x28\x0d\x1e\xc6\x98\x21\xbc\xb6\xa8\x83\x93\x96\xf9\x65\xab\x6f\xf7\x2a\x70&quot;;</span><br><span class="line">$data2=&quot;\xd1\x31\xdd\x02\xc5\xe6\xee\xc4\x69\x3d\x9a\x06\x98\xaf\xf9\x5c\x2f\xca\xb5\x87\x12\x46\x7e\xab\x40\x04\x58\x3e\xb8\xfb\x7f\x89\x55\xad\x34\x06\x09\xf4\xb3\x02\x83\xe4\x88\x83\x25\x71\x41\x5a\x08\x51\x25\xe8\xf7\xcd\xc9\x9f\xd9\x1d\xbd\xf2\x80\x37\x3c\x5b\xd8\x82\x3e\x31\x56\x34\x8f\x5b\xae\x6d\xac\xd4\x36\xc9\x19\xc6\xdd\x53\xe2\xb4\x87\xda\x03\xfd\x02\x39\x63\x06\xd2\x48\xcd\xa0\xe9\x9f\x33\x42\x0f\x57\x7e\xe8\xce\x54\xb6\x70\x80\xa8\x0d\x1e\xc6\x98\x21\xbc\xb6\xa8\x83\x93\x96\xf9\x65\x2b\x6f\xf7\x2a\x70&quot;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>进行url解码后的MD5值相等</p>
-</li>
-<li><p>$a&#x3D;&#x3D;md5($a)</p>
-</li>
-</ol>
-<p>0e215962017 的 MD5 值也是由 0e 开头，在 PHP 弱类型比较中相等</p>
-
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/07/28/[BJDCTF 2020]easy_md5/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/07/28/PHP反序列化/"><span>PHP反序列化</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/07/28/PHP反序列化/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-07-28T05:31:36.000Z">
-          2024-07-28
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/07/28/PHP反序列化/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/07/22/Sql/"><span>Sql</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/07/22/Sql/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-07-22T06:19:06.000Z">
-          2024-07-22
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <h2 id="Sql注入基本步骤"><a href="#Sql注入基本步骤" class="headerlink" title="Sql注入基本步骤"></a><font color = '008000'>Sql注入基本步骤</font></h2><ol>
-<li>查找注入点</li>
-<li>判断是字符型还是数字型注入 and 1&#x3D;1 and 1&#x3D;2 &#x2F; 3-1</li>
-<li>如果是字符型判断他的闭合方式, ‘ “ ‘) “)</li>
-<li>判断数据列数 group by &#x2F; order by</li>
-<li>寻找回显位置</li>
-</ol>
-<hr>
-<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a><font color = '008000'>相关命令</font></h2><ol>
-<li><code>database()</code></li>
-<li><code>group_concat()</code></li>
-<li><code>concat()</code></li>
-<li><code>substring(),00,30</code></li>
-</ol>
-<hr>
-<h2 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a><font color = '008000'>报错注入</font></h2>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">extractvalue(XML_document,XPath_string)</span><br><span class="line"></span><br><span class="line">updatexml(XML_document,XPath_string,new_value)</span><br></pre></td></tr></table></figure>
-<h3 id="floor报错"><a href="#floor报错" class="headerlink" title="floor报错"></a><font color = '808044'>floor报错</font></h3><table>
-<thead>
-<tr>
-<th>涉及函数</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>rand()</td>
-<td>随机生成0~1之间的小数</td>
-</tr>
-<tr>
-<td>floor()</td>
-<td>小数向下取整数。向上取整数ceiling()</td>
-</tr>
-<tr>
-<td>concat_ws()</td>
-<td>将括号内数据用第一个字段连接起来</td>
-</tr>
-<tr>
-<td>group_by</td>
-<td>分组语句，常用于，结合统计函数，根据一个或多个列对结果集进行分组</td>
-</tr>
-<tr>
-<td>as</td>
-<td>别名</td>
-</tr>
-<tr>
-<td>count()</td>
-<td>汇总统计数量</td>
-</tr>
-<tr>
-<td>limit</td>
-<td>这里用于显示指定行数</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/07/22/Sql/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/06/09/php伪协议/"><span>php伪协议</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/06/09/php伪协议/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-06-09T06:09:06.000Z">
-          2024-06-09
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <table>
-<thead>
-<tr>
-<th align="center">协议</th>
-<th align="center">测试PHP版本</th>
-<th align="center">allow_url_fopen</th>
-<th align="center">allow_url_include</th>
-<th align="center">用法</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center"><a href="#file">file:&#x2F;&#x2F;</a></td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;file:&#x2F;&#x2F;D:&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt</td>
-</tr>
-<tr>
-<td align="center">php:&#x2F;&#x2F;filter</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.&#x2F;index.php<or>php:&#x2F;&#x2F;filter&#x2F;convert.iconv.UTF-7.UCS-4*&#x2F;resource</td>
-</tr>
-<tr>
-<td align="center"><a href="#Input">php:&#x2F;&#x2F;input</a></td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">on</td>
-<td align="center">?fle&#x3D;php:&#x2F;&#x2F;input 【POST DATA】<?php phpinfo()?></td>
-</tr>
-<tr>
-<td align="center">zip:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;zip:&#x2F;&#x2F;D:&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;file.zip%23phpcode.txt</td>
-</tr>
-<tr>
-<td align="center">compress.bzip2:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?hle&#x3D;compress.bzip2:&#x2F;&#x2F;D&#x2F;softphpStudy&#x2F;VW&#x2F;hle.bz2</br>【or】</br>?file&#x3D;compress.bzip2:&#x2F;&#x2F;&#x2F;file.bz2</td>
-</tr>
-<tr>
-<td align="center">compress.zlib:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">off&#x2F;on</td>
-<td align="center">?file&#x3D;compress.zlib:&#x2F;&#x2F;D:&#x2F;soft&#x2F;phpStudy&#x2F;WW&#x2F;file.gz【or】?file&#x3D;compress.zlib:&#x2F;&#x2F;.&#x2F;file.gz</td>
-</tr>
-<tr>
-<td align="center">data:&#x2F;&#x2F;</td>
-<td align="center">&gt;&#x3D;5.2</td>
-<td align="center">on</td>
-<td align="center">on</td>
-<td align="center">?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,<?php phpinfo0?></br>【or】</br>?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain;base64,PD9waHAgcGhwaWSmbygpPz4&#x3D;</br>也可以:?file&#x3D;data:text&#x2F;plain,<?php phpinfo0?></br>【or】</br>?file&#x3D;datatext&#x2F;plain:base64.PD9waHAgcGhwaW5mbyqpPz4&#x3D;</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="Input"><a href="#Input" class="headerlink" title="Input"></a>Input</h2><p><em>file</em>为待传的变量名</br><br>变量名&#x3D;php:&#x2F;&#x2F;input然后post想运行的语句</br><br>场景:文件包含</br><br>建议使用burpsuite</br></p>
-<h2 id="file"><a href="#file" class="headerlink" title="file"></a>file</h2><p>用于访问服务端本地的文件</br><br>用法：变量&#x3D;file:&#x2F;&#x2F;文件地址</br><br>场景:文件包含</p>
-
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/06/09/php伪协议/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/06/09/我的第一篇文章/"><span>我的第一篇文章</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/06/09/我的第一篇文章/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-06-09T05:31:36.000Z">
-          2024-06-09
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/06/09/我的第一篇文章/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-  <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><a href="/2024/06/09/hello-world/"><span>Hello World</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2024/06/09/hello-world/" rel="bookmark">
-        <time class="entry-date published" datetime="2024-06-09T05:30:05.999Z">
-          2024-06-09
-        </time>
-      </a>
-    </span>
-    <br />
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-  
-    
-    <h3 class="article-read"><a href="/2024/06/09/hello-world/"><span>more</span></a></h3>
-    
-  
-</article>
-
-
-
-
-
-
-<nav class="pagination">
-  
-  <a href="/" class="pagination-prev">Prev</a>
-  
-  
-</nav>
-            </main>
-            <div class="sidebar
-                    col-lg-3 col-lg-offset-0
-                    col-md-3 col-md-offset-0
-                    col-sm-12
-                    col-xs-12
-                    sidebar-container
-                ">
-
-                <div class="sidebar-container">
-
-
-
-<div class="search-container">
-<form class="site-search-form">
-    <span class="glyphicon glyphicon-search"></span><input type="text" id="local-search-input" class="st-search-input" placeholder="Search..." />
-</form>
-<div id="local-search-result" class="local-search-result-cls"></div>
-</div>
-<script type="text/javascript" id="local.search.active">
-var inputArea       = document.querySelector("#local-search-input");
-inputArea.onclick   = function(){ getSearchFile(); this.onclick = null }
-inputArea.onkeydown = function(){ if(event.keyCode == 13) return false }
-</script>
-
-
-
-
-    <div class="categories-container" style="margin-top:40px;">
-        <p>归档:</p>
-            
-    </div>
-
-
-
-
-    <div class="social-container" style="margin-top:40px;">
-        <p>Links:</p>
-            
-                
-                    <li class="social-item"><i class="fa fa-fw fa-github"></i><a target="_blank" rel="noopener" href="https://github.com/LvYzCc">GitHub</a></li>
-                
-            
-                
-                    <li class="social-item"><i class="fa fa-fw fa-weibo"></i><a target="_blank" rel="noopener" href="https://weibo.com">微博</a></li>
-                
-            
-                
-                    <li class="social-item"><i class=" fa fa-fw zhihu-icon"></i><a target="_blank" rel="noopener" href="https://www.zhihu.com/">知乎</a></li>
-                
-            
-                
-                    <li class="social-item"><i class=" fa fa-fw lofter-icon"></i><a target="_blank" rel="noopener" href="http://boseny.lofter.com/">Lofter</a></li>
-                
-            
-    </div>
-
-</div>
-            </div>
-          </div>
-        </div>
-        
-    <footer class="site-footer">
-  <p class="site-info">
-    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
-    Theme by <a href="https://github.com/BosenY/Lap" target="_blank">Lap</a>
-    <br/><span id="busuanzi_container_site_uv"> 
-  本站访客数<span id="busuanzi_value_site_uv"></span>人次
-</span>
-    </br>
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
     
       
-        &copy; 2025 John Doe
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'LvYz的小窝',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">LvYz的小窝</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="site-info"><h1 id="site-title">LvYz的小窝</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/07/28/%5BBJDCTF%202020%5Deasy_md5/" title="BJDCTF 2020_easy_md5题解">BJDCTF 2020_easy_md5题解</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-07-28T08:47:23.000Z" title="发表于 2024-07-28 16:47:23">2024-07-28</time></span></div><div class="content">[BJDCTF 2020]easy_md5题解 知识点: md5(password,true) php弱类型匹配或数组绕过  在响应头得到提示属于SQL注入与md5结合的题目 select * from &#39;admin&#39; where password=md5($pass,true)$pass$就是我们上传的$password$，当password=md5($pass,true)为真时，前面的select * from &#39;admin&#39;才会进行查询,这里需要用将md5($pass,true)将它转化为&#39;or 1 这里用到一个特殊的字符串$ffifdyop$, hex: 276f722736c95d99e921722cf9ed621craw: &#x27;or&#x27;6\xc9]\x99\xe9!r,\xf9\xedb\x1cstring: &#x27;or&#x27;6]!r,b $ffifdyop$ 这个字符串被 $md5$ 哈希了之后会变成 $276f722736c95d99e921722cf9ed621c，这个字符串前几位刚好是 $’...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/07/28/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="PHP反序列化">PHP反序列化</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-07-28T05:31:36.000Z" title="发表于 2024-07-28 13:31:36">2024-07-28</time></span></div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/07/22/Sql/" title="Sql">Sql</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-07-22T06:19:06.000Z" title="发表于 2024-07-22 14:19:06">2024-07-22</time></span></div><div class="content">Sql注入基本步骤 查找注入点 判断是字符型还是数字型注入 and 1&#x3D;1 and 1&#x3D;2 &#x2F; 3-1 如果是字符型判断他的闭合方式, ‘ “ ‘) “) 判断数据列数 group by &#x2F; order by 寻找回显位置   相关命令 database() group_concat() concat() substring(),00,30   报错注入   extractvalue(XML_document,XPath_string)updatexml(XML_document,XPath_string,new_value) floor报错   涉及函数 作用    rand() 随机生成0~1之间的小数   floor() 小数向下取整数。向上取整数ceiling()   concat_ws() 将括号内数据用第一个字段连接起来   group_by 分组语句，常用于，结合统计函数，根据一个或多个列对结果集进行分组   as 别名   count() 汇总统计数量   limit 这里用于显示指定行数   </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/06/09/php%E4%BC%AA%E5%8D%8F%E8%AE%AE/" title="php伪协议">php伪协议</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-06-09T06:09:06.000Z" title="发表于 2024-06-09 14:09:06">2024-06-09</time></span></div><div class="content">...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/06/09/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/" title="我的第一篇文章">我的第一篇文章</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-06-09T05:31:36.000Z" title="发表于 2024-06-09 13:31:36">2024-06-09</time></span></div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/06/09/hello-world/" title="Hello World">Hello World</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-06-09T05:30:05.999Z" title="发表于 2024-06-09 13:30:05">2024-06-09</time></span></div><div class="content">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post$ hexo new &quot;My New Post&quot;  More info: Writing Run server$ hexo server  More info: Server Generate static files$ hexo generate  More info: Generating Deploy to remote sites$ hexo deploy  More info: Deployment </div></div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">LvYz</div><div class="author-info-description">WebDog你知道的啊</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/30/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9C/" title="春秋云镜">春秋云镜</a><time datetime="2025-03-30T04:34:38.000Z" title="发表于 2025-03-30 12:34:38">2025-03-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/" title="TemplatesImpl类中的调用链">TemplatesImpl类中的调用链</a><time datetime="2025-03-29T08:13:42.000Z" title="发表于 2025-03-29 16:13:42">2025-03-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/29/Polar-JAVA%E9%A2%98WP/" title="Polar_JAVA题WP">Polar_JAVA题WP</a><time datetime="2025-03-29T05:53:45.000Z" title="发表于 2025-03-29 13:53:45">2025-03-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/15/%5Bharekazectf2019%5DeasyNotes/" title="Notes">Notes</a><time datetime="2025-03-15T07:58:06.000Z" title="发表于 2025-03-15 15:58:06">2025-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/17/SWPU2019-Web4/" title="[SWPU2019]Web4">[SWPU2019]Web4</a><time datetime="2025-02-17T06:11:22.000Z" title="发表于 2025-02-17 14:11:22">2025-02-17</time></div></div></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
       
-    
-  </p>
-</footer>
-    
-<script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-92842840-1', 'auto');
-    ga('send', 'pageview');
-
-</script>
-
-
-  </div>
-
-</div>
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
-<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-  <script src="https://unpkg.com/draw-something/dist/draw.min.js"></script>
-  <script>
-    let maxNum = Number.parseInt('10')
-    let iconText = '❤'
-    let color = 'red'
-    new Draw({maxNum, iconText, color})
-  </script>
-
-<script src="/js/index.js"></script>
-<script src="/js/search.js"></script>
-
-</body>
-</html>
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/03/">
+            <span class="card-archive-list-date">
+              三月 2025
+            </span>
+            <span class="card-archive-list-count">4</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/02/">
+            <span class="card-archive-list-date">
+              二月 2025
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/01/">
+            <span class="card-archive-list-date">
+              一月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/08/">
+            <span class="card-archive-list-date">
+              八月 2024
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/07/">
+            <span class="card-archive-list-date">
+              七月 2024
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/06/">
+            <span class="card-archive-list-date">
+              六月 2024
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">16</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-03-30T06:54:48.705Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By LvYz</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.2.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

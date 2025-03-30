@@ -1,323 +1,228 @@
-<!DOCTYPE HTML>
-<html>
-<head >
-  <meta charset="utf-8">
-  
-  <title>Notes | Hexo</title>
-
-  
-  <meta name="author" content="John Doe">
-  
-
-  
-  <meta name="description" content="[harekazectf2019]easyNotes题目来源：BUUCTF
-题目类型：WEB
-设计考点：Session伪造,Session反序列化
-
-
-这是一个note服务网页，登录后可以添加note包括标题和内容，然后可以打包成ZIP或者TAR文件进行下载，题目提供了源码首先进行代码审计
-1234">
-  
-
-  
-  
-  <meta name="keywords" content="">
-  
-
-  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-  <meta property="og:title" content="Notes"/>
-
-  <meta property="og:site_name" content="Hexo"/>
-
-  
-  <meta property="og:image" content="/favicon.ico"/>
-  
-  
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-5005349780815724",
-    enable_page_level_ads: true
-  });
-</script>
-
-  
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?223eea22355699157e147870eb124b24";
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-
-
-  <link rel="manifest" href="/manifest.json">
-  <link href="/favicon.ico" rel="icon">
-
-  <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base/bootstrap.min.css" media="screen" type="text/css">
-  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
-
-
-<meta name="generator" content="Hexo 7.2.0"></head>
-
-
-<body>
-<div class="blog">
-  <div class="content">
-
-    
-
-    <header class="header-container" style="background-image: url('/images/blog-bg.jpg');">
-
-
-<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header page-scroll">
-          <button type="button" id="tglBtn" class="navbar-toggle">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">John Doe</a>
-        </div>
-        <div id="bosenyblog-navbar">
-          <div class="navbar-collapse" id="bs-example-navbar-collapse-6">
-            <ul class="nav navbar-nav navbar-right">
-            
-              <li><a href="/">Home</a></li>
-            
-              <li><a href="/archives">Archives</a></li>
-            
-              <li><a href="/about">About</a></li>
-            
-              <li><a href="/tags">Tags</a></li>
-            
-            </ul>
-          </div>
-        </div>
-
-    </div>
- </nav>
- <div class="gotop-btn">
-
- </div>
-</header>
-
-        
-          <div class="container ">
-          <div class="row">
-            <main class="site-main posts-loop col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1
-                post-container" style="position: inherit;">
-            <article class="article-container ">
-
-  
-    
-    <h3 class="article-title"><span>Notes</span></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2025/03/15/[harekazectf2019]easyNotes/" rel="bookmark">
-        <time class="entry-date published" datetime="2025-03-15T07:58:06.000Z">
-          2025-03-15
-        </time>
-      </a>
-    </span>
-    <br />
-    
-    <span id="busuanzi_container_page_pv">
-      本文总阅读量<span id="busuanzi_value_page_pv"></span>次
-    </span>
-    
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Notes | LvYz的小窝</title><meta name="author" content="LvYz"><meta name="copyright" content="LvYz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[harekazectf2019]easyNotes题目来源：BUUCTF 题目类型：WEB 设计考点：Session伪造,Session反序列化   这是一个note服务网页，登录后可以添加note包括标题和内容，然后可以打包成ZIP或者TAR文件进行下载，题目提供了源码首先进行代码审计 &lt;section&gt;  &lt;h2&gt;Get flag&lt;&#x2F;h2&gt;  &lt;p&amp;">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Notes">
+<meta property="og:url" content="http://example.com/2025/03/15/[harekazectf2019]easyNotes/index.html">
+<meta property="og:site_name" content="LvYz的小窝">
+<meta property="og:description" content="[harekazectf2019]easyNotes题目来源：BUUCTF 题目类型：WEB 设计考点：Session伪造,Session反序列化   这是一个note服务网页，登录后可以添加note包括标题和内容，然后可以打包成ZIP或者TAR文件进行下载，题目提供了源码首先进行代码审计 &lt;section&gt;  &lt;h2&gt;Get flag&lt;&#x2F;h2&gt;  &lt;p&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-03-15T07:58:06.000Z">
+<meta property="article:modified_time" content="2025-03-15T08:15:39.011Z">
+<meta property="article:author" content="LvYz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/03/15/[harekazectf2019]easyNotes/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
       
-          <h2 id="harekazectf2019-easyNotes"><a href="#harekazectf2019-easyNotes" class="headerlink" title="[harekazectf2019]easyNotes"></a>[harekazectf2019]easyNotes</h2><p style="font-size:10px;color:#7f8c93">题目来源：BUUCTF<br>
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Notes',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: '[harekazectf2019]easyNotes'
+}</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">LvYz的小窝</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">Notes</h1></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="harekazectf2019-easyNotes"><a href="#harekazectf2019-easyNotes" class="headerlink" title="[harekazectf2019]easyNotes"></a>[harekazectf2019]easyNotes</h2><p style="font-size:10px;color:#7f8c93">题目来源：BUUCTF<br>
 题目类型：WEB<br>
 设计考点：Session伪造,Session反序列化</p>
 
 <p><img src="/../img/easyNotes/1.png" alt="web1"></p>
 <p><img src="/../img/easyNotes/2.png" alt="web2"><br>这是一个note服务网页，登录后可以添加note包括标题和内容，然后可以打包成ZIP或者TAR文件进行下载，题目提供了源码首先进行代码审计</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;section&gt;</span><br><span class="line">  &lt;h2&gt;Get flag&lt;/h2&gt;</span><br><span class="line">  &lt;p&gt;</span><br><span class="line">    &lt;?php</span><br><span class="line">    if (is_admin()) &#123;</span><br><span class="line">      echo &quot;Congratulations! The flag is: &lt;code&gt;&quot; . getenv(&#x27;FLAG&#x27;) . &quot;&lt;/code&gt;&quot;;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      echo &quot;You are not an admin :(&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    ?&gt;</span><br><span class="line">  &lt;/p&gt;</span><br><span class="line">&lt;/section&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;section&gt;</span><br><span class="line">  &lt;h2&gt;Get flag&lt;/h2&gt;</span><br><span class="line">  &lt;p&gt;</span><br><span class="line">    &lt;?php</span><br><span class="line">    if (is_admin()) &#123;</span><br><span class="line">      echo &quot;Congratulations! The flag is: &lt;code&gt;&quot; . getenv(&#x27;FLAG&#x27;) . &quot;&lt;/code&gt;&quot;;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      echo &quot;You are not an admin :(&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    ?&gt;</span><br><span class="line">  &lt;/p&gt;</span><br><span class="line">&lt;/section&gt;</span><br></pre></td></tr></table></figure>
 <p>通过审计该代码，我们发现当is_admin函数返回值为true时即可得到flag，我们跟进is_admin函数</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function is_admin() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;admin&#x27;])) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;admin&#x27;] === true;</span><br><span class="line">&#125;</span><br><span class="line">发现他是获取的SESSION文件中的admin值</span><br><span class="line">那么思路就是怎么伪造session</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#config.php</span><br><span class="line">&lt;?php</span><br><span class="line">define(&#x27;TEMP_DIR&#x27;, &#x27;/var/www/tmp&#x27;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function is_admin() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;admin&#x27;])) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;admin&#x27;] === true;</span><br><span class="line">&#125;</span><br><span class="line">发现他是获取的SESSION文件中的admin值</span><br><span class="line">那么思路就是怎么伪造session</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#config.php</span><br><span class="line">&lt;?php</span><br><span class="line">define(&#x27;TEMP_DIR&#x27;, &#x27;/var/www/tmp&#x27;);</span><br></pre></td></tr></table></figure>
 <p>这个文件标识了临时文件存储路径</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">#lip.php(定义了一些函数)</span><br><span class="line">&lt;?php</span><br><span class="line">function redirect($path) &#123;</span><br><span class="line">  header(&#x27;Location: &#x27; . $path);</span><br><span class="line">  exit();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// utility functions</span><br><span class="line">function e($str) &#123;</span><br><span class="line">  return htmlspecialchars($str, ENT_QUOTES);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// user-related functions</span><br><span class="line">function validate_user($user) &#123;</span><br><span class="line">  if (!is_string($user)) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  return preg_match(&#x27;/\A[0-9A-Z_-]&#123;4,64&#125;\z/i&#x27;, $user);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function is_logged_in() &#123;</span><br><span class="line">  return isset($_SESSION[&#x27;user&#x27;]) &amp;&amp; !empty($_SESSION[&#x27;user&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function set_user($user) &#123;</span><br><span class="line">  $_SESSION[&#x27;user&#x27;] = $user;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function get_user() &#123;</span><br><span class="line">  return $_SESSION[&#x27;user&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function is_admin() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;admin&#x27;])) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;admin&#x27;] === true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// note-related functions</span><br><span class="line">function get_notes() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;notes&#x27;])) &#123;</span><br><span class="line">    $_SESSION[&#x27;notes&#x27;] = [];</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;notes&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function add_note($title, $body) &#123;</span><br><span class="line">  $notes = get_notes();</span><br><span class="line">  array_push($notes, [</span><br><span class="line">    &#x27;title&#x27; =&gt; $title,</span><br><span class="line">    &#x27;body&#x27; =&gt; $body,</span><br><span class="line">    &#x27;id&#x27; =&gt; hash(&#x27;sha256&#x27;, microtime())</span><br><span class="line">  ]);</span><br><span class="line">  $_SESSION[&#x27;notes&#x27;] = $notes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function find_note($notes, $id) &#123;</span><br><span class="line">  for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">    if ($notes[$index][&#x27;id&#x27;] === $id) &#123;</span><br><span class="line">      return $index;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return FALSE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function delete_note($id) &#123;</span><br><span class="line">  $notes = get_notes();</span><br><span class="line">  $index = find_note($notes, $id);</span><br><span class="line">  if ($index !== FALSE) &#123;</span><br><span class="line">    array_splice($notes, $index, 1);</span><br><span class="line">  &#125;</span><br><span class="line">  $_SESSION[&#x27;notes&#x27;] = $notes;</span><br><span class="line">&#125;</span><br><span class="line">#init.php</span><br><span class="line">&lt;?php</span><br><span class="line">error_reporting(0);</span><br><span class="line"></span><br><span class="line">require_once(&#x27;config.php&#x27;);</span><br><span class="line">require_once(&#x27;lib.php&#x27;);</span><br><span class="line"></span><br><span class="line">session_save_path(TEMP_DIR);#标识了session文件保存路径</span><br><span class="line">session_start();</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">#export.php</span><br><span class="line">&lt;?php</span><br><span class="line">require_once(&#x27;init.php&#x27;);</span><br><span class="line"></span><br><span class="line">if (!is_logged_in()) &#123;</span><br><span class="line">  redirect(&#x27;/?page=home&#x27;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$notes = get_notes();</span><br><span class="line"></span><br><span class="line">if (!isset($_GET[&#x27;type&#x27;]) || empty($_GET[&#x27;type&#x27;])) &#123;</span><br><span class="line">  $type = &#x27;zip&#x27;;</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  $type = $_GET[&#x27;type&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$filename = get_user() . &#x27;-&#x27; . bin2hex(random_bytes(8)) . &#x27;.&#x27; . $type;</span><br><span class="line">$filename = str_replace(&#x27;..&#x27;, &#x27;&#x27;, $filename); // avoid path traversal</span><br><span class="line">$path = TEMP_DIR . &#x27;/&#x27; . $filename;</span><br><span class="line"></span><br><span class="line">if ($type === &#x27;tar&#x27;) &#123;</span><br><span class="line">  $archive = new PharData($path);</span><br><span class="line">  $archive-&gt;startBuffering();</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  // use zip as default</span><br><span class="line">  $archive = new ZipArchive();</span><br><span class="line">  $archive-&gt;open($path, ZIPARCHIVE::CREATE | ZipArchive::OVERWRITE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">  $note = $notes[$index];</span><br><span class="line">  $title = $note[&#x27;title&#x27;];</span><br><span class="line">  $title = preg_replace(&#x27;/[^!-~]/&#x27;, &#x27;-&#x27;, $title);</span><br><span class="line">  $title = preg_replace(&#x27;#[/\\?*.]#&#x27;, &#x27;-&#x27;, $title); // delete suspicious characters</span><br><span class="line">  $archive-&gt;addFromString(&quot;&#123;$index&#125;_&#123;$title&#125;.json&quot;, json_encode($note));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if ($type === &#x27;tar&#x27;) &#123;</span><br><span class="line">  $archive-&gt;stopBuffering();</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  $archive-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">header(&#x27;Content-Disposition: attachment; filename=&quot;&#x27; . $filename . &#x27;&quot;;&#x27;);</span><br><span class="line">header(&#x27;Content-Length: &#x27; . filesize($path));</span><br><span class="line">header(&#x27;Content-Type: application/zip&#x27;);</span><br><span class="line">readfile($path);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#lip.php(定义了一些函数)</span><br><span class="line">&lt;?php</span><br><span class="line">function redirect($path) &#123;</span><br><span class="line">  header(&#x27;Location: &#x27; . $path);</span><br><span class="line">  exit();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// utility functions</span><br><span class="line">function e($str) &#123;</span><br><span class="line">  return htmlspecialchars($str, ENT_QUOTES);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// user-related functions</span><br><span class="line">function validate_user($user) &#123;</span><br><span class="line">  if (!is_string($user)) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  return preg_match(&#x27;/\A[0-9A-Z_-]&#123;4,64&#125;\z/i&#x27;, $user);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function is_logged_in() &#123;</span><br><span class="line">  return isset($_SESSION[&#x27;user&#x27;]) &amp;&amp; !empty($_SESSION[&#x27;user&#x27;]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function set_user($user) &#123;</span><br><span class="line">  $_SESSION[&#x27;user&#x27;] = $user;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function get_user() &#123;</span><br><span class="line">  return $_SESSION[&#x27;user&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function is_admin() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;admin&#x27;])) &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;admin&#x27;] === true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// note-related functions</span><br><span class="line">function get_notes() &#123;</span><br><span class="line">  if (!isset($_SESSION[&#x27;notes&#x27;])) &#123;</span><br><span class="line">    $_SESSION[&#x27;notes&#x27;] = [];</span><br><span class="line">  &#125;</span><br><span class="line">  return $_SESSION[&#x27;notes&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function add_note($title, $body) &#123;</span><br><span class="line">  $notes = get_notes();</span><br><span class="line">  array_push($notes, [</span><br><span class="line">    &#x27;title&#x27; =&gt; $title,</span><br><span class="line">    &#x27;body&#x27; =&gt; $body,</span><br><span class="line">    &#x27;id&#x27; =&gt; hash(&#x27;sha256&#x27;, microtime())</span><br><span class="line">  ]);</span><br><span class="line">  $_SESSION[&#x27;notes&#x27;] = $notes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function find_note($notes, $id) &#123;</span><br><span class="line">  for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">    if ($notes[$index][&#x27;id&#x27;] === $id) &#123;</span><br><span class="line">      return $index;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return FALSE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function delete_note($id) &#123;</span><br><span class="line">  $notes = get_notes();</span><br><span class="line">  $index = find_note($notes, $id);</span><br><span class="line">  if ($index !== FALSE) &#123;</span><br><span class="line">    array_splice($notes, $index, 1);</span><br><span class="line">  &#125;</span><br><span class="line">  $_SESSION[&#x27;notes&#x27;] = $notes;</span><br><span class="line">&#125;</span><br><span class="line">#init.php</span><br><span class="line">&lt;?php</span><br><span class="line">error_reporting(0);</span><br><span class="line"></span><br><span class="line">require_once(&#x27;config.php&#x27;);</span><br><span class="line">require_once(&#x27;lib.php&#x27;);</span><br><span class="line"></span><br><span class="line">session_save_path(TEMP_DIR);#标识了session文件保存路径</span><br><span class="line">session_start();</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#export.php</span><br><span class="line">&lt;?php</span><br><span class="line">require_once(&#x27;init.php&#x27;);</span><br><span class="line"></span><br><span class="line">if (!is_logged_in()) &#123;</span><br><span class="line">  redirect(&#x27;/?page=home&#x27;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$notes = get_notes();</span><br><span class="line"></span><br><span class="line">if (!isset($_GET[&#x27;type&#x27;]) || empty($_GET[&#x27;type&#x27;])) &#123;</span><br><span class="line">  $type = &#x27;zip&#x27;;</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  $type = $_GET[&#x27;type&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$filename = get_user() . &#x27;-&#x27; . bin2hex(random_bytes(8)) . &#x27;.&#x27; . $type;</span><br><span class="line">$filename = str_replace(&#x27;..&#x27;, &#x27;&#x27;, $filename); // avoid path traversal</span><br><span class="line">$path = TEMP_DIR . &#x27;/&#x27; . $filename;</span><br><span class="line"></span><br><span class="line">if ($type === &#x27;tar&#x27;) &#123;</span><br><span class="line">  $archive = new PharData($path);</span><br><span class="line">  $archive-&gt;startBuffering();</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  // use zip as default</span><br><span class="line">  $archive = new ZipArchive();</span><br><span class="line">  $archive-&gt;open($path, ZIPARCHIVE::CREATE | ZipArchive::OVERWRITE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">  $note = $notes[$index];</span><br><span class="line">  $title = $note[&#x27;title&#x27;];</span><br><span class="line">  $title = preg_replace(&#x27;/[^!-~]/&#x27;, &#x27;-&#x27;, $title);</span><br><span class="line">  $title = preg_replace(&#x27;#[/\\?*.]#&#x27;, &#x27;-&#x27;, $title); // delete suspicious characters</span><br><span class="line">  $archive-&gt;addFromString(&quot;&#123;$index&#125;_&#123;$title&#125;.json&quot;, json_encode($note));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if ($type === &#x27;tar&#x27;) &#123;</span><br><span class="line">  $archive-&gt;stopBuffering();</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  $archive-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">header(&#x27;Content-Disposition: attachment; filename=&quot;&#x27; . $filename . &#x27;&quot;;&#x27;);</span><br><span class="line">header(&#x27;Content-Length: &#x27; . filesize($path));</span><br><span class="line">header(&#x27;Content-Type: application/zip&#x27;);</span><br><span class="line">readfile($path);</span><br></pre></td></tr></table></figure>
 <p>可以发现session文件保存路径与note文件导出的路径一样，看看文件名的命名方式</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$filename = get_user() . &#x27;-&#x27; . bin2hex(random_bytes(8)) . &#x27;.&#x27; . $type;</span><br><span class="line">$filename = str_replace(&#x27;..&#x27;, &#x27;&#x27;, $filename); // avoid path traversal</span><br><span class="line">$path = TEMP_DIR . &#x27;/&#x27; . $filename;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$filename = get_user() . &#x27;-&#x27; . bin2hex(random_bytes(8)) . &#x27;.&#x27; . $type;</span><br><span class="line">$filename = str_replace(&#x27;..&#x27;, &#x27;&#x27;, $filename); // avoid path traversal</span><br><span class="line">$path = TEMP_DIR . &#x27;/&#x27; . $filename;</span><br></pre></td></tr></table></figure>
 <p>通过get_user函数获取用户名然后用一段随机字符串加上文件类型，这里的get_user内容可控，登录时修改用户名即可，但是他还有type拼接且type无法为空不然就会被设置为ZIP，第二行代码中将..替换为空为了防止目录穿越，那么我们就可以让type的值为.这样filename中就有..被替换为空那么后缀名就消失了，我们成功构造出了一个符合要求的session文件名，看看内容是否可控</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">  $note = $notes[$index];</span><br><span class="line">  $title = $note[&#x27;title&#x27;];</span><br><span class="line">  $title = preg_replace(&#x27;/[^!-~]/&#x27;, &#x27;-&#x27;, $title);</span><br><span class="line">  $title = preg_replace(&#x27;#[/\\?*.]#&#x27;, &#x27;-&#x27;, $title); // delete suspicious characters</span><br><span class="line">  $archive-&gt;addFromString(&quot;&#123;$index&#125;_&#123;$title&#125;.json&quot;, json_encode($note));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">for ($index = 0; $index &lt; count($notes); $index++) &#123;</span><br><span class="line">  $note = $notes[$index];</span><br><span class="line">  $title = $note[&#x27;title&#x27;];</span><br><span class="line">  $title = preg_replace(&#x27;/[^!-~]/&#x27;, &#x27;-&#x27;, $title);</span><br><span class="line">  $title = preg_replace(&#x27;#[/\\?*.]#&#x27;, &#x27;-&#x27;, $title); // delete suspicious characters</span><br><span class="line">  $archive-&gt;addFromString(&quot;&#123;$index&#125;_&#123;$title&#125;.json&quot;, json_encode($note));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>内容是可控的我们新建note的title值会被写入到文件当中，那么思路就结束了</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、登录用户名设置为sess_</span><br><span class="line">2、新建note，title值为|N;admin|b:1;   (body任意)</span><br><span class="line">3、export文件，BP拦截将type值设置为.</span><br><span class="line">4、将文件名中SESS_后的字符串记录</span><br><span class="line">5、打开flag获取页面设置session值为第四步的字符串，这样他就会自动反序列化/var/www/tmp中我们植入伪造admin的文件，这样$_session[&#x27;admin&#x27;]=true从而获取flag</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1、登录用户名设置为sess_</span><br><span class="line">2、新建note，title值为|N;admin|b:1;   (body任意)</span><br><span class="line">3、export文件，BP拦截将type值设置为.</span><br><span class="line">4、将文件名中SESS_后的字符串记录</span><br><span class="line">5、打开flag获取页面设置session值为第四步的字符串，这样他就会自动反序列化/var/www/tmp中我们植入伪造admin的文件，这样$_session[&#x27;admin&#x27;]=true从而获取flag</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">LvYz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/03/15/[harekazectf2019]easyNotes/">http://example.com/2025/03/15/[harekazectf2019]easyNotes/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">LvYz的小窝</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav id="pagination"><div class="pagination"></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">LvYz</div><div class="author-info-description">WebDog你知道的啊</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/30/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9C/" title="春秋云镜">春秋云镜</a><time datetime="2025-03-30T04:34:38.000Z" title="发表于 2025-03-30 12:34:38">2025-03-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/" title="TemplatesImpl类中的调用链">TemplatesImpl类中的调用链</a><time datetime="2025-03-29T08:13:42.000Z" title="发表于 2025-03-29 16:13:42">2025-03-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/29/Polar-JAVA%E9%A2%98WP/" title="Polar_JAVA题WP">Polar_JAVA题WP</a><time datetime="2025-03-29T05:53:45.000Z" title="发表于 2025-03-29 13:53:45">2025-03-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/15/%5Bharekazectf2019%5DeasyNotes/" title="Notes">Notes</a><time datetime="2025-03-15T07:58:06.000Z" title="发表于 2025-03-15 15:58:06">2025-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/17/SWPU2019-Web4/" title="[SWPU2019]Web4">[SWPU2019]Web4</a><time datetime="2025-02-17T06:11:22.000Z" title="发表于 2025-02-17 14:11:22">2025-02-17</time></div></div></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
       
     </div>
-    
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
   
-    
-    
-  
-</article>
-   
-    <div id="toc" class="toc-article ">
-    <div class="toc-title">目录</div>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#harekazectf2019-easyNotes"><span class="toc-number">1.</span> <span class="toc-text">[harekazectf2019]easyNotes</span></a></li></ol>
-</div>
-
-
-  
-
-	<!-- async load  -->
-	<script>
-			function async(u, c) {
-				var d = document, t = 'script',
-						o = d.createElement(t),
-						s = d.getElementsByTagName(t)[0];
-				o.src = u;
-				if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
-				s.parentNode.insertBefore(o, s);
-			}
-	</script>
-	<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
-	<script>
-			async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
-					anchors.options = {
-						visible: 'hover',
-						placement: 'left',
-						// icon: '#'
-					};
-					anchors.add().remove('.article-title').remove('.subheading').remove('.sidebar-container h5');
-			})
-	</script>
-	<style>
-			/* place left on bigger screen */
-			@media all and (min-width: 800px) {
-					.anchorjs-link{
-							position: absolute;
-							left: -0.75em;
-							font-size: 1.1em;
-							margin-top : -0.1em;
-					}
-			}
-	</style>
-
-
-
-
-<!-- UY BEGIN -->
-	<div id="gitment-container"></div>
-	<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
-	<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
-	<script src="/js/web-pinyin.js"></script>
-	<script>
-		function toUnicode(s){ 
-			return s.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
-			return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
-			});
-		}
-		var title = 'Notes'
-		var GitHub_id = 'Boseny'
-		var client_id = 'f40c67d0359a2646d2b1'
-		var client_secret = '1cbedbd1a1a2e4b42901aee3d7afe1856c1b7e2d'
-		var repo = 'boseny.me'
-		var gitment = new Gitment({
-		// id: '页面 ID', // 可选。默认为 location.href
-		// id:"11" ,
-		id: title,
-		title: title,
-		owner: GitHub_id,//'你的 GitHub ID',
-		repo: repo,//'存储评论的 repo',
-		oauth: {
-			client_id: client_id,//'你的 client ID',
-			client_secret: client_secret,//'你的 client secret',
-		},
-		})
-		gitment.render('gitment-container')
-	</script>
-<!-- UY END -->
-
-
-
-
-            </main>
-          </div>
-        </div>
-       
-    <footer class="site-footer">
-  <p class="site-info">
-    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
-    Theme by <a href="https://github.com/BosenY/Lap" target="_blank">Lap</a>
-    <br/><span id="busuanzi_container_site_uv"> 
-  本站访客数<span id="busuanzi_value_site_uv"></span>人次
-</span>
-    </br>
-    
+    <ul class="card-archive-list">
       
-        &copy; 2025 John Doe
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/03/">
+            <span class="card-archive-list-date">
+              三月 2025
+            </span>
+            <span class="card-archive-list-count">4</span>
+          </a>
+        </li>
       
-    
-  </p>
-</footer>
-    
-<script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-92842840-1', 'auto');
-    ga('send', 'pageview');
-
-</script>
-
-
-  </div>
-
-</div>
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
-<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-  <script src="https://unpkg.com/draw-something/dist/draw.min.js"></script>
-  <script>
-    let maxNum = Number.parseInt('10')
-    let iconText = '❤'
-    let color = 'red'
-    new Draw({maxNum, iconText, color})
-  </script>
-
-<script src="/js/index.js"></script>
-<script src="/js/search.js"></script>
-
-</body>
-</html>
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/02/">
+            <span class="card-archive-list-date">
+              二月 2025
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/01/">
+            <span class="card-archive-list-date">
+              一月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/08/">
+            <span class="card-archive-list-date">
+              八月 2024
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/07/">
+            <span class="card-archive-list-date">
+              七月 2024
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/06/">
+            <span class="card-archive-list-date">
+              六月 2024
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">16</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-03-30T06:54:48.705Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By LvYz</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.2.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
