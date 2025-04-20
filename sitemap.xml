@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://lvyzcc.github.io/link/index.html</loc>
+    
+    <lastmod>2025-04-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://lvyzcc.github.io/2025/04/20/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CDay2/</loc>
     
     <lastmod>2025-04-20</lastmod>
@@ -182,24 +191,6 @@
   </url>
   
   <url>
-    <loc>https://lvyzcc.github.io/links/index.html</loc>
-    
-    <lastmod>2025-03-30</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://lvyzcc.github.io/2025/03/30/links/</loc>
-    
-    <lastmod>2025-03-30</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://lvyzcc.github.io/about/index.html</loc>
     
     <lastmod>2025-03-30</lastmod>
@@ -212,24 +203,6 @@
     <loc>https://lvyzcc.github.io/2025/02/03/PHP%E5%86%85%E7%BD%AE%E7%B1%BB%E7%9B%B8%E5%85%B3/</loc>
     
     <lastmod>2025-02-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://lvyzcc.github.io/2024/06/09/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</loc>
-    
-    <lastmod>2024-06-09</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://lvyzcc.github.io/2024/06/09/hello-world/</loc>
-    
-    <lastmod>2024-06-09</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
